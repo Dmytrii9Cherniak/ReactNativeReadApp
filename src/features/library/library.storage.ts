@@ -14,9 +14,11 @@ const bookFile = (fileName: string) => new File(booksDir(), fileName);
 export const libraryStorage: LibraryStorage = {
   async readIndex() {
     const file = indexFile();
+
     if (!file.exists) {
       return [];
     }
+
     try {
       return JSON.parse(await file.text()) as Book[];
     } catch {
@@ -35,6 +37,7 @@ export const libraryStorage: LibraryStorage = {
 
   async deleteBookFile(fileName) {
     const file = bookFile(fileName);
+
     if (file.exists) {
       file.delete();
     }

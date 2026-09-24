@@ -33,3 +33,4 @@ src/
 - Не використовувати `Alert` з react-native напряму — тільки `shared/lib/dialogs` (на web `Alert` не працює).
 - Тема одна — темна (`app.json → userInterfaceStyle: "dark"`).
 - Нові пакети — через `npx expo install`.
+- Перед комітом: `npm run check` (typecheck + ESLint + Prettier). Межі між шарами й заборона `Alert` перевіряються ESLint.

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 
 import { detectBookFormat, stripExtension } from './lib/book-format';
 import { libraryStorage } from './library.storage';
+
 import type { Book } from './types';
 
 export interface ImportResult {
@@ -37,6 +38,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
       if (get().isLoaded) {
         return;
       }
+
       const books = await libraryStorage.readIndex();
       set({ books, isLoaded: true });
     },
@@ -47,6 +49,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
         multiple: true,
         copyToCacheDirectory: true,
       });
+
       if (result.canceled) {
         return { added: [], skipped: [] };
       }
@@ -56,6 +59,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
 
       for (const asset of result.assets) {
         const format = detectBookFormat(asset.name);
+
         if (!format) {
           skipped.push(asset.name);
           continue;
@@ -78,14 +82,17 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
       if (added.length > 0) {
         await saveBooks([...added, ...get().books]);
       }
+
       return { added, skipped };
     },
 
     async remove(id) {
       const book = get().books.find((b) => b.id === id);
+
       if (!book) {
         return;
       }
+
       await libraryStorage.deleteBookFile(book.fileName);
       await saveBooks(get().books.filter((b) => b.id !== id));
     },

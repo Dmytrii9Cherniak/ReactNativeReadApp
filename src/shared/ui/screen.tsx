@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
 import { MAX_CONTENT_WIDTH } from '@/shared/constants/layout';
 import { colors, spacing } from '@/shared/theme';
+
+import type { ReactNode } from 'react';
 
 interface ScreenProps {
   children: ReactNode;

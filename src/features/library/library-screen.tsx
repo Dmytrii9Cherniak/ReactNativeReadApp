@@ -8,6 +8,7 @@ import { Button, CenteredMessage, Screen, ScreenHeader } from '@/shared/ui';
 
 import { BookListItem } from './components/book-list-item';
 import { useBooks, useLibraryStore } from './library.store';
+
 import type { Book } from './types';
 
 export function LibraryScreen() {
@@ -38,6 +39,7 @@ export function LibraryScreen() {
       confirmText: 'Видалити',
       destructive: true,
     });
+
     if (confirmed) {
       await remove(book.id);
     }
@@ -51,7 +53,9 @@ export function LibraryScreen() {
         action={<Button title="+ Додати" variant="outline" onPress={addBooks} />}
       />
 
-      <FlatList data={books} keyExtractor={(b) => b.id}
+      <FlatList
+        data={books}
+        keyExtractor={(b) => b.id}
         renderItem={({ item }) => (
           <BookListItem book={item} onPress={openBook} onLongPress={confirmRemove} />
         )}

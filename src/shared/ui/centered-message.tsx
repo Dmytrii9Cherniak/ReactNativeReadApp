@@ -1,9 +1,10 @@
-import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { colors, spacing } from '@/shared/theme';
 
 import { Text } from './text';
+
+import type { ReactNode } from 'react';
 
 interface CenteredMessageProps {
   title: string;

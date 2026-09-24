@@ -4,6 +4,7 @@ import { borderWidth, colors, radius, spacing } from '@/shared/theme';
 import { Text } from '@/shared/ui';
 
 import { formatFileSize } from '../lib/book-format';
+
 import type { Book } from '../types';
 
 interface BookListItemProps {

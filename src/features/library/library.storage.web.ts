@@ -30,9 +30,11 @@ export const libraryStorage: LibraryStorage = {
 
   async readBookText(fileName) {
     const blob = await get<Blob>(bookKey(fileName));
+
     if (!blob) {
       throw new Error('Файл не знайдено');
     }
+
     return blob.text();
   },
 };

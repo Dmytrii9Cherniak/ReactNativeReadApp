@@ -1,0 +1,6 @@
+# Завжди LF у репозиторії та робочій копії (Windows / macOS / Linux)
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.svg text
