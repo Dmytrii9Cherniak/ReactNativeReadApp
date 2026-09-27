@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { useBook, type Book } from '@/features/library';
 import { CenteredMessage } from '@/shared/ui';
 
+import { PdfBook } from './components/pdf-book';
 import { TextReader } from './components/text-reader';
 
 export function ReaderScreen({ bookId }: { bookId: string }) {
@@ -26,11 +27,12 @@ function BookReader({ book }: { book: Book }) {
     case 'txt':
       return <TextReader book={book} />;
     case 'pdf':
+      return <PdfBook book={book} />;
     case 'epub':
       return (
         <CenteredMessage
           title="Формат у розробці"
-          description={`Рідер для ${book.format.toUpperCase()} буде на наступних кроках`}
+          description="Рідер для EPUB буде на наступних кроках"
         />
       );
   }

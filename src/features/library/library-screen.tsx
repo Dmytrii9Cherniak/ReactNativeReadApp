@@ -3,6 +3,7 @@ import { FlatList, StyleSheet } from 'react-native';
 
 import { TAB_BAR_INSET } from '@/shared/constants/layout';
 import { confirm, showMessage } from '@/shared/lib/dialogs';
+import { getErrorMessage } from '@/shared/lib/errors';
 import { spacing } from '@/shared/theme';
 import { Button, CenteredMessage, Screen, ScreenHeader } from '@/shared/ui';
 
@@ -28,7 +29,7 @@ export function LibraryScreen() {
         showMessage('Непідтримуваний формат', skipped.join('\n'));
       }
     } catch (e) {
-      showMessage('Помилка', e instanceof Error ? e.message : String(e));
+      showMessage('Помилка', getErrorMessage(e));
     }
   };
 

@@ -18,6 +18,7 @@ interface LibraryState {
   load: () => Promise<void>;
   importFromPicker: () => Promise<ImportResult>;
   remove: (id: string) => Promise<void>;
+  saveProgress: (id: string, page: number, pageCount: number) => Promise<void>;
 }
 
 function createId(): string {
@@ -95,6 +96,12 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
 
       await libraryStorage.deleteBookFile(book.fileName);
       await saveBooks(get().books.filter((b) => b.id !== id));
+    },
+
+    async saveProgress(id, page, pageCount) {
+      const progress = { page, pageCount, updatedAt: new Date().toISOString() };
+
+      await saveBooks(get().books.map((b) => (b.id === id ? { ...b, progress } : b)));
     },
   };
 });

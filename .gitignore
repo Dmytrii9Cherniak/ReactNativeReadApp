@@ -44,3 +44,6 @@ example
 
 # IDE
 .idea/
+
+# pdf.js worker (копіюється postinstall)
+/public/pdf.worker.min.mjs

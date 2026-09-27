@@ -19,7 +19,7 @@ export function TextReader({ book }: { book: Book }) {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text variant="reading">{state.text}</Text>
+      <Text variant="reading">{state.value}</Text>
     </ScrollView>
   );
 }

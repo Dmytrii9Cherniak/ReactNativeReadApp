@@ -46,4 +46,14 @@ export const libraryStorage: LibraryStorage = {
   readBookText(fileName) {
     return bookFile(fileName).text();
   },
+
+  async openBookFile(fileName) {
+    const file = bookFile(fileName);
+
+    if (!file.exists) {
+      throw new Error('Файл не знайдено');
+    }
+
+    return { uri: file.uri, release: () => {} };
+  },
 };

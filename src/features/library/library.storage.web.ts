@@ -10,6 +10,16 @@ import type { Book } from './types';
 const INDEX_KEY = 'library:index';
 const bookKey = (fileName: string) => `book:${fileName}`;
 
+async function readBlob(fileName: string): Promise<Blob> {
+  const blob = await get<Blob>(bookKey(fileName));
+
+  if (!blob) {
+    throw new Error('Файл не знайдено');
+  }
+
+  return blob;
+}
+
 export const libraryStorage: LibraryStorage = {
   async readIndex() {
     return (await get<Book[]>(INDEX_KEY)) ?? [];
@@ -29,12 +39,12 @@ export const libraryStorage: LibraryStorage = {
   },
 
   async readBookText(fileName) {
-    const blob = await get<Blob>(bookKey(fileName));
+    return (await readBlob(fileName)).text();
+  },
 
-    if (!blob) {
-      throw new Error('Файл не знайдено');
-    }
+  async openBookFile(fileName) {
+    const uri = URL.createObjectURL(await readBlob(fileName));
 
-    return blob.text();
+    return { uri, release: () => URL.revokeObjectURL(uri) };
   },
 };

@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { borderWidth, colors, radius, spacing } from '@/shared/theme';
-import { Text } from '@/shared/ui';
+import { ProgressBar, Text } from '@/shared/ui';
 
 import { formatFileSize } from '../lib/book-format';
 
@@ -29,7 +29,13 @@ export function BookListItem({ book, onPress, onLongPress }: BookListItemProps) 
           </Text>
         </View>
         <Text variant="mono">{formatFileSize(book.size)}</Text>
+        {book.progress ? (
+          <Text variant="mono" style={styles.pages}>
+            {book.progress.page} / {book.progress.pageCount}
+          </Text>
+        ) : null}
       </View>
+      {book.progress ? <ProgressBar value={book.progress.page / book.progress.pageCount} /> : null}
     </Pressable>
   );
 }
@@ -47,6 +53,7 @@ const styles = StyleSheet.create({
   },
   pressed: { backgroundColor: colors.surfaceRaised },
   meta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  pages: { marginLeft: 'auto' },
   badge: {
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xs / 2,
