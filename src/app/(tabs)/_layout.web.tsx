@@ -22,6 +22,7 @@ export default function TabsLayout() {
         sceneStyle: { backgroundColor: colors.background },
       }}>
       <Tabs.Screen name="index" options={{ title: 'Бібліотека' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Профіль' }} />
       <Tabs.Screen name="settings" options={{ title: 'Налаштування' }} />
     </Tabs>
   );

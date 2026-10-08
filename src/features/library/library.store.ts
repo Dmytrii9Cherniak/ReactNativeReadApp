@@ -1,15 +1,20 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { create } from 'zustand';
 
+import { getErrorMessage } from '@/shared/lib/errors';
+
 import { detectBookFormat, stripExtension } from './lib/book-format';
+import { migrateBook } from './lib/migrations';
 import { libraryStorage } from './library.storage';
 
-import type { Book } from './types';
+import type { Book, ReadingProgress } from './types';
 
 export interface ImportResult {
   added: Book[];
   /** Імена файлів з непідтримуваним форматом */
   skipped: string[];
+  /** «ім'я: причина» для файлів, які не вдалося скопіювати */
+  failed: string[];
 }
 
 interface LibraryState {
@@ -18,7 +23,8 @@ interface LibraryState {
   load: () => Promise<void>;
   importFromPicker: () => Promise<ImportResult>;
   remove: (id: string) => Promise<void>;
-  saveProgress: (id: string, page: number, pageCount: number) => Promise<void>;
+  /** Рідер передає прогрес у своїх одиницях; час оновлення ставить стор. */
+  saveProgress: (id: string, progress: Omit<ReadingProgress, 'updatedAt'>) => Promise<void>;
 }
 
 function createId(): string {
@@ -40,7 +46,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
         return;
       }
 
-      const books = await libraryStorage.readIndex();
+      const books = (await libraryStorage.readIndex()).map(migrateBook);
       set({ books, isLoaded: true });
     },
 
@@ -48,15 +54,19 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
       const result = await DocumentPicker.getDocumentAsync({
         type: '*/*',
         multiple: true,
-        copyToCacheDirectory: true,
+        // Файл копіюємо самі одразу в сховище бібліотеки — без проміжної копії в кеші.
+        // Android: копія з кешу пікера в Expo Go не читається (expo/expo#21792),
+        // а content:// URI читається. iOS і так віддає локальну копію файлу.
+        copyToCacheDirectory: false,
       });
 
       if (result.canceled) {
-        return { added: [], skipped: [] };
+        return { added: [], skipped: [], failed: [] };
       }
 
       const added: Book[] = [];
       const skipped: string[] = [];
+      const failed: string[] = [];
 
       for (const asset of result.assets) {
         const format = detectBookFormat(asset.name);
@@ -68,7 +78,13 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
 
         const id = createId();
         const fileName = `${id}.${format}`;
-        await libraryStorage.saveBookFile(asset, fileName);
+
+        try {
+          await libraryStorage.saveBookFile(asset, fileName);
+        } catch (error) {
+          failed.push(`${asset.name}: ${getErrorMessage(error)}`);
+          continue;
+        }
 
         added.push({
           id,
@@ -84,7 +100,7 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
         await saveBooks([...added, ...get().books]);
       }
 
-      return { added, skipped };
+      return { added, skipped, failed };
     },
 
     async remove(id) {
@@ -98,10 +114,10 @@ export const useLibraryStore = create<LibraryState>()((set, get) => {
       await saveBooks(get().books.filter((b) => b.id !== id));
     },
 
-    async saveProgress(id, page, pageCount) {
-      const progress = { page, pageCount, updatedAt: new Date().toISOString() };
+    async saveProgress(id, progress) {
+      const updated: ReadingProgress = { ...progress, updatedAt: new Date().toISOString() };
 
-      await saveBooks(get().books.map((b) => (b.id === id ? { ...b, progress } : b)));
+      await saveBooks(get().books.map((b) => (b.id === id ? { ...b, progress: updated } : b)));
     },
   };
 });

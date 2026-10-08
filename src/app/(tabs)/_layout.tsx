@@ -18,6 +18,11 @@ export default function TabsLayout() {
         <NativeTabs.Trigger.Icon sf="books.vertical" md="menu_book" />
       </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Label>Профіль</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon sf="person.crop.circle" md="person" />
+      </NativeTabs.Trigger>
+
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>Налаштування</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="gearshape" md="settings" />

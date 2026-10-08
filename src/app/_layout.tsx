@@ -3,14 +3,17 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 
 import { useLibraryStore } from '@/features/library';
+import { useStatsStore } from '@/features/stats';
 import { colors, navigationTheme, typography } from '@/shared/theme';
 
 export default function RootLayout() {
   const loadLibrary = useLibraryStore((s) => s.load);
+  const loadStats = useStatsStore((s) => s.load);
 
   useEffect(() => {
     loadLibrary();
-  }, [loadLibrary]);
+    loadStats();
+  }, [loadLibrary, loadStats]);
 
   return (
     <ThemeProvider value={navigationTheme}>

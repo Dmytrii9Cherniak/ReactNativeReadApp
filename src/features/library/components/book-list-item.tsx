@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { borderWidth, colors, radius, spacing } from '@/shared/theme';
 import { ProgressBar, Text } from '@/shared/ui';
 
-import { formatFileSize } from '../lib/book-format';
+import { formatFileSize, formatProgress } from '../lib/book-format';
 
 import type { Book } from '../types';
 
@@ -30,12 +30,12 @@ export function BookListItem({ book, onPress, onLongPress }: BookListItemProps) 
         </View>
         <Text variant="mono">{formatFileSize(book.size)}</Text>
         {book.progress ? (
-          <Text variant="mono" style={styles.pages}>
-            {book.progress.page} / {book.progress.pageCount}
+          <Text variant="mono" style={styles.progress}>
+            {formatProgress(book.progress)}
           </Text>
         ) : null}
       </View>
-      {book.progress ? <ProgressBar value={book.progress.page / book.progress.pageCount} /> : null}
+      {book.progress ? <ProgressBar value={book.progress.fraction} /> : null}
     </Pressable>
   );
 }
@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   },
   pressed: { backgroundColor: colors.surfaceRaised },
   meta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  pages: { marginLeft: 'auto' },
+  progress: { marginLeft: 'auto' },
   badge: {
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xs / 2,

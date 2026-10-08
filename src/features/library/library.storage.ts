@@ -32,7 +32,7 @@ export const libraryStorage: LibraryStorage = {
 
   async saveBookFile(asset, fileName) {
     booksDir().create({ intermediates: true, idempotent: true });
-    new File(asset.uri).copy(bookFile(fileName));
+    await new File(asset.uri).copy(bookFile(fileName));
   },
 
   async deleteBookFile(fileName) {

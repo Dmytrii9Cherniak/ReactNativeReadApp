@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { FlatList, StyleSheet } from 'react-native';
 
+import { RankStrip } from '@/features/stats';
 import { TAB_BAR_INSET } from '@/shared/constants/layout';
 import { confirm, showMessage } from '@/shared/lib/dialogs';
 import { getErrorMessage } from '@/shared/lib/errors';
@@ -23,10 +24,14 @@ export function LibraryScreen() {
 
   const addBooks = async () => {
     try {
-      const { skipped } = await importFromPicker();
+      const { skipped, failed } = await importFromPicker();
 
       if (skipped.length > 0) {
         showMessage('Непідтримуваний формат', skipped.join('\n'));
+      }
+
+      if (failed.length > 0) {
+        showMessage('Не вдалося імпортувати', failed.join('\n'));
       }
     } catch (e) {
       showMessage('Помилка', getErrorMessage(e));
@@ -53,6 +58,8 @@ export function LibraryScreen() {
         title="Бібліотека"
         action={<Button title="+ Додати" variant="outline" onPress={addBooks} />}
       />
+
+      <RankStrip />
 
       <FlatList
         data={books}
