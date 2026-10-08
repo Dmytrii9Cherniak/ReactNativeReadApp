@@ -1,0 +1,202 @@
+# Ручна перевірка API. WebStorm / IntelliJ: кнопка ▶ біля запиту.
+# Токени з відповідей зберігаються автоматично (блоки `> {% ... %}`) і підставляються в наступні запити.
+# Листи з кодами: http://localhost:8025 (Mailpit)
+
+@baseUrl = http://localhost:3000
+@email = test@example.com
+
+### 1. Реєстрація → код на пошту
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Діма",
+  "email": "{{email}}",
+  "password": "password123",
+  "acceptTerms": true
+}
+
+### 2. Підтвердження пошти (код з Mailpit) → вхід
+POST {{baseUrl}}/auth/verify-email
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "000000"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+  client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### 3. Вхід
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "password": "password123"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+  client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### 4. Поточний користувач
+GET {{baseUrl}}/me
+Authorization: Bearer {{accessToken}}
+
+### 5. Оновлення сесії (старий refresh-токен після цього недійсний)
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+  client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### 6. Забули пароль → код на пошту
+POST {{baseUrl}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}"
+}
+
+### 7. Новий пароль (код з Mailpit) → вхід
+POST {{baseUrl}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "email": "{{email}}",
+  "code": "000000",
+  "password": "newpassword123"
+}
+
+> {%
+  client.global.set("accessToken", response.body.accessToken);
+  client.global.set("refreshToken", response.body.refreshToken);
+%}
+
+### 8. Вихід
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+### 9. Адмінка: список користувачів (потрібен isAdmin: npm run make-admin -- {{email}})
+GET {{baseUrl}}/admin/users
+Authorization: Bearer {{accessToken}}
+
+### 10. Адмінка: видати права (id — з відповіді вище)
+PATCH {{baseUrl}}/admin/users/00000000-0000-0000-0000-000000000000/permissions
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "canModerateBooks": true
+}
+
+### ─────────────── Книги ───────────────
+
+### 11. Завантажити книгу (стане приватною і з'явиться на твоїй полиці)
+POST {{baseUrl}}/books
+Authorization: Bearer {{accessToken}}
+Content-Type: multipart/form-data; boundary=BookBoundary
+
+--BookBoundary
+Content-Disposition: form-data; name="title"
+
+Тестова книга
+--BookBoundary
+Content-Disposition: form-data; name="author"
+
+Невідомий сталкер
+--BookBoundary
+Content-Disposition: form-data; name="file"; filename="sample.txt"
+Content-Type: text/plain
+
+< ./fixtures/sample.txt
+--BookBoundary--
+
+> {%
+  client.global.set("bookId", response.body.id);
+%}
+
+### 12. Книга за id (приватну бачить лише власник)
+GET {{baseUrl}}/books/{{bookId}}
+Authorization: Bearer {{accessToken}}
+
+### 13. Файл книги
+GET {{baseUrl}}/books/{{bookId}}/file
+Authorization: Bearer {{accessToken}}
+
+### 14. Мої завантаження (усі статуси)
+GET {{baseUrl}}/books/uploads
+Authorization: Bearer {{accessToken}}
+
+### 15. Подати в каталог (private / rejected → pending)
+POST {{baseUrl}}/books/{{bookId}}/submit
+Authorization: Bearer {{accessToken}}
+
+### 16. Модерація: черга (потрібне canModerateBooks або isAdmin)
+GET {{baseUrl}}/moderation/books
+Authorization: Bearer {{accessToken}}
+
+### 17. Модерація: схвалити → книга в каталозі
+POST {{baseUrl}}/moderation/books/{{bookId}}/approve
+Authorization: Bearer {{accessToken}}
+
+### 18. Модерація: відхилити з причиною
+POST {{baseUrl}}/moderation/books/{{bookId}}/reject
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "reason": "Вкажи автора"
+}
+
+### 19. Каталог (відкритий для гостей): пошук і сторінки
+GET {{baseUrl}}/books?search=тест&limit=20&offset=0
+
+### ─────────────── Моя бібліотека ───────────────
+
+### 20. Мої книги з полицями й прогресом
+GET {{baseUrl}}/me/books
+Authorization: Bearer {{accessToken}}
+
+### 21. Покласти на полицю: watchlist | reading | read
+PUT {{baseUrl}}/me/books/{{bookId}}
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "shelf": "read"
+}
+
+### 22. Зберегти прогрес читання
+PUT {{baseUrl}}/me/books/{{bookId}}/progress
+Authorization: Bearer {{accessToken}}
+Content-Type: application/json
+
+{
+  "location": { "type": "line", "line": 120 },
+  "fraction": 0.35,
+  "furthestPages": 42.5
+}
+
+### 23. Прибрати з бібліотеки (сама книга лишається)
+DELETE {{baseUrl}}/me/books/{{bookId}}
+Authorization: Bearer {{accessToken}}
+
+### 24. Видалити книгу повністю (власник або модератор)
+DELETE {{baseUrl}}/books/{{bookId}}
+Authorization: Bearer {{accessToken}}

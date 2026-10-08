@@ -1,8 +1,9 @@
 // https://docs.expo.dev/guides/using-eslint/
+const stylistic = require('@stylistic/eslint-plugin');
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
-const stylistic = require('@stylistic/eslint-plugin');
 const prettierRecommended = require('eslint-plugin-prettier/recommended');
+const globals = require('globals');
 
 /** Фічі спілкуються тільки через публічний API: `@/features/<name>`. */
 const noDeepFeatureImports = {
@@ -22,7 +23,8 @@ module.exports = defineConfig([
   prettierRecommended,
 
   {
-    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts'],
+    // server/ — окремий Node-проєкт зі своїми перевірками
+    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts', 'server/**'],
   },
 
   {
@@ -75,6 +77,12 @@ module.exports = defineConfig([
         },
       ],
     },
+  },
+
+  {
+    // Node-скрипти (postinstall, dev): тут CommonJS і глобальні змінні Node
+    files: ['scripts/**/*.js'],
+    languageOptions: { globals: globals.node },
   },
 
   {
