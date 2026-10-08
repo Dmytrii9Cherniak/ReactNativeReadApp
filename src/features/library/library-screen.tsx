@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { FlatList, StyleSheet } from 'react-native';
 
+import { AuthGate } from '@/features/auth';
 import { RankStrip } from '@/features/stats';
 import { TAB_BAR_INSET } from '@/shared/constants/layout';
 import { confirm, showMessage } from '@/shared/lib/dialogs';
@@ -56,7 +57,12 @@ export function LibraryScreen() {
       <ScreenHeader
         eyebrow={`Архів // ${books.length}`}
         title="Бібліотека"
-        action={<Button title="+ Додати" variant="outline" onPress={addBooks} />}
+        action={
+          // Додавати книги — лише після входу; читати вже додані може й гість
+          <AuthGate>
+            <Button title="+ Додати" variant="outline" onPress={addBooks} />
+          </AuthGate>
+        }
       />
 
       <RankStrip />
@@ -68,10 +74,12 @@ export function LibraryScreen() {
           <BookListItem book={item} onPress={openBook} onLongPress={confirmRemove} />
         )}
         ListEmptyComponent={
-          <CenteredMessage
-            title="Архів порожній"
-            description="Натисни «+ Додати», щоб вибрати PDF, EPUB або TXT"
-          />
+          <AuthGate fallback={<GuestEmptyLibrary />}>
+            <CenteredMessage
+              title="Архів порожній"
+              description="Натисни «+ Додати», щоб вибрати PDF, EPUB або TXT"
+            />
+          </AuthGate>
         }
         contentContainerStyle={styles.list}
       />
@@ -87,3 +95,11 @@ const styles = StyleSheet.create({
     paddingBottom: TAB_BAR_INSET + spacing.lg,
   },
 });
+
+function GuestEmptyLibrary() {
+  return (
+    <CenteredMessage title="Архів порожній" description="Увійди, щоб додавати книги">
+      <Button title="Увійти" onPress={() => router.push('/login')} />
+    </CenteredMessage>
+  );
+}

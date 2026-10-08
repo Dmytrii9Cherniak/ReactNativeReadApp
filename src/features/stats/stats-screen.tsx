@@ -1,5 +1,6 @@
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { AccountCard } from '@/features/auth';
 import { TAB_BAR_INSET } from '@/shared/constants/layout';
 import { spacing } from '@/shared/theme';
 import { InfoRow, Screen, ScreenHeader, Text } from '@/shared/ui';
@@ -18,6 +19,8 @@ export function StatsScreen() {
       <ScreenHeader eyebrow="ПДА // Профіль" title="Профіль" />
 
       <ScrollView contentContainerStyle={styles.content}>
+        <AccountCard />
+
         <RankCard totalPages={totalPages} />
 
         <View>

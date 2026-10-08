@@ -10,11 +10,13 @@ import { borderWidth, colors, radius, spacing, type ColorToken } from '@/shared/
 
 import { Text } from './text';
 
-type ButtonVariant = 'primary' | 'outline';
+/** ghost — текстова кнопка-посилання («Забули пароль?») */
+type ButtonVariant = 'primary' | 'outline' | 'ghost';
 
 const labelColor: Record<ButtonVariant, ColorToken> = {
   primary: 'onPrimary',
   outline: 'primary',
+  ghost: 'primary',
 };
 
 export interface ButtonProps extends Omit<PressableProps, 'children' | 'style'> {
@@ -47,5 +49,6 @@ const styles = StyleSheet.create({
   },
   primary: { backgroundColor: colors.primary, borderColor: colors.primary },
   outline: { backgroundColor: 'transparent', borderColor: colors.primary },
+  ghost: { backgroundColor: 'transparent', borderColor: 'transparent' },
   pressed: { opacity: 0.7 },
 });
