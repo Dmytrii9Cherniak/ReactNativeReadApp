@@ -21,16 +21,7 @@ src/
   config/env.ts           Змінні середовища (EXPO_PUBLIC_*)
 ```
 
-Фічі: `library` (список, імпорт, видалення книг), `reader` (читання), `stats` (денна статистика читання, ранги, екран «Профіль»), `auth` (акаунт, вхід, сесія, гарди), `settings`.
-
-## Авторизація
-
-- Сесія — `features/auth/auth.store.ts`. Refresh-токен зберігається в SecureStore (web — localStorage), access-токен — лише в пам'яті.
-- Гард для UI — `<AuthGate permission?>` / `<GuestOnly>` (аналог структурної директиви). Лише приховує елементи.
-- Гард для маршрутів — `Stack.Protected` у `app/_layout.tsx`.
-- Гард для запитів — `withAuth((token) => requestJson(...))`: без сесії запит не відправляється, прострочений токен оновлюється автоматично.
-- Справжній захист даних — лише на сервері: `requireAuth`, `requirePermission` (server/src/modules/auth).
-- HTTP — `shared/api` (`requestJson`, `requestVoid`, `ApiError`). Адреса API — `config/env.ts`.
+Фічі: `library` (список, імпорт, видалення книг), `reader` (читання), `stats` (денна статистика читання, ранги, екран «Профіль»), `settings`.
 
 ## Правила
 

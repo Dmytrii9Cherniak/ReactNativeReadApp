@@ -23,8 +23,7 @@ module.exports = defineConfig([
   prettierRecommended,
 
   {
-    // server/ — окремий Node-проєкт зі своїми перевірками
-    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts', 'server/**'],
+    ignores: ['dist/*', '.expo/*', 'expo-env.d.ts'],
   },
 
   {
@@ -80,7 +79,7 @@ module.exports = defineConfig([
   },
 
   {
-    // Node-скрипти (postinstall, dev): тут CommonJS і глобальні змінні Node
+    // Node-скрипти (postinstall): тут CommonJS і глобальні змінні Node
     files: ['scripts/**/*.js'],
     languageOptions: { globals: globals.node },
   },

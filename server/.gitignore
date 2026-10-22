@@ -1,5 +1,0 @@
-node_modules/
-dist/
-.env
-# Завантажені файли книг (STORAGE_DIR)
-storage/
