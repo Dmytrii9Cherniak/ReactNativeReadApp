@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -5,7 +6,6 @@ import type { BookLanguage } from '@/features/catalog';
 import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
 import { notify } from '@/shared/lib/dialogs';
-import { goBack } from '@/shared/lib/navigation';
 import { spacing } from '@/shared/theme';
 import { Button, Checkbox, Chip, Screen, Text, TextField } from '@/shared/ui';
 
@@ -30,7 +30,8 @@ export function UploadScreen() {
   const { submit, isSubmitting, error, setError } = useSubmit(async (bookFile: BookFile) => {
     await uploadApi.submitBook({ title, author, description, language, file: bookFile, cover });
     notify.success(t.upload.submitted);
-    goBack();
+    // Одразу видно надіслану книгу зі станом «На перевірці»
+    router.replace('/submissions');
   });
 
   const handleSubmit = () => {

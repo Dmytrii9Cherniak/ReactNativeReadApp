@@ -45,3 +45,17 @@ export function validateSignup(t: Messages, form: SignupForm): string | null {
 export function validateCode(t: Messages, code: string): string | null {
   return CODE_PATTERN.test(code.trim()) ? null : t.auth.codeInvalid;
 }
+
+export function validateEmail(t: Messages, email: string): string | null {
+  return EMAIL_PATTERN.test(email.trim()) ? null : t.auth.emailInvalid;
+}
+
+export function validateNickname(t: Messages, nickname: string): string | null {
+  const length = nickname.trim().length;
+
+  return length >= 2 && length <= 32 ? null : t.auth.nicknameRequired;
+}
+
+export function validateNewPassword(t: Messages, password: string): string | null {
+  return password.length >= MIN_PASSWORD_LENGTH ? null : t.auth.passwordShort;
+}

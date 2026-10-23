@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
 
 import { borderWidth, colors, radius } from '@/shared/theme';
@@ -13,12 +14,25 @@ interface BookCoverProps {
   width?: number;
 }
 
-/** Обкладинка книги або кольорова заглушка з іконкою, поки зображення немає. */
+/**
+ * Обкладинка книги або кольорова заглушка з іконкою — і тоді, коли зображення немає,
+ * і коли воно не завантажилось (немає мережі, посилання застаріло).
+ */
 export function BookCover({ book, width }: BookCoverProps) {
   const sizeStyle = width ? { width } : styles.fill;
+  const [failedUrl, setFailedUrl] = useState<string | null>(null);
 
-  if (book.coverUrl) {
-    return <Image source={{ uri: book.coverUrl }} style={[styles.cover, sizeStyle]} />;
+  if (book.coverUrl && book.coverUrl !== failedUrl) {
+    const url = book.coverUrl;
+
+    return (
+      <Image
+        source={{ uri: url }}
+        onError={() => setFailedUrl(url)}
+        resizeMode="cover"
+        style={[styles.cover, sizeStyle]}
+      />
+    );
   }
 
   return (

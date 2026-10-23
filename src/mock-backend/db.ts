@@ -51,6 +51,8 @@ export interface BookRecord extends CatalogBook {
   submittedBy: string | null;
   submittedAt: string;
   rejectReason: string | null;
+  /** Тестова книга з згенерованим текстом; завантажені — текст із файлу (book-files.ts) */
+  isDemoText: boolean;
 }
 
 export interface ShelfRecord {
@@ -98,6 +100,12 @@ export interface PendingSignup {
   password: string;
 }
 
+/** Запит на скидання пароля (справжній бекенд зберігає хеш коду й термін дії). */
+export interface PasswordReset {
+  email: string;
+  requestedAt: string;
+}
+
 export interface Db {
   version: number;
   users: UserRecord[];
@@ -105,6 +113,7 @@ export interface Db {
   shelves: ShelfRecord[];
   stories: StoryRecord[];
   pendingSignups: PendingSignup[];
+  passwordResets: PasswordReset[];
   notifications: NotificationRecord[];
   audit: AuditRecord[];
   /** Учасники угруповань поза тестовою базою — щоб цифри були «живими» */
@@ -112,7 +121,7 @@ export interface Db {
 }
 
 /** Змінюється при зміні структури — стара збережена база тоді просто перестворюється. */
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORAGE_KEY = 'mock-backend-db';
 
 let db: Db | null = null;

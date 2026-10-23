@@ -7,11 +7,38 @@ import { useT } from '@/shared/i18n';
 import { borderWidth, colors, radius, spacing } from '@/shared/theme';
 import { Button, Icon, Text } from '@/shared/ui';
 
+interface MenuUserProps {
+  onNavigate: () => void;
+  /** Згорнуте меню: лише аватар (тап — профіль або вхід) */
+  isCompact?: boolean;
+}
+
 /** Верх меню: користувач з рангом (тап — профіль) або «Гість» з кнопкою входу. */
-export function MenuUser({ onNavigate }: { onNavigate: () => void }) {
+export function MenuUser({ onNavigate, isCompact = false }: MenuUserProps) {
   const t = useT();
   const user = useCurrentUser();
   const progress = useProgress();
+
+  if (isCompact) {
+    return (
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={user ? user.nickname : t.menu.login}
+        onPress={() => {
+          onNavigate();
+          router.push(user ? '/profile' : '/login');
+        }}
+        style={styles.compact}>
+        {user && progress ? (
+          <FactionAvatar factionId={progress.factionId} size={40} />
+        ) : (
+          <View style={[styles.guestAvatar, styles.compactAvatar]}>
+            <Icon name={user ? 'user' : 'log-in'} size={18} color="primaryLight" />
+          </View>
+        )}
+      </Pressable>
+    );
+  }
 
   if (!user) {
     return (
@@ -83,4 +110,6 @@ const styles = StyleSheet.create({
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
   name: { flexShrink: 1 },
   login: { marginTop: spacing.md },
+  compact: { paddingBottom: spacing.md },
+  compactAvatar: { width: 40, height: 40, marginBottom: 0 },
 });

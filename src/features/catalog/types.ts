@@ -35,4 +35,6 @@ export interface CatalogPage {
 export interface BookContent {
   bookId: string;
   paragraphs: string[];
+  /** Зміст: назва розділу й номер абзацу, з якого він починається */
+  chapters: { title: string; paragraph: number }[];
 }

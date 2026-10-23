@@ -22,6 +22,7 @@ export const toBook = ({
   submittedBy: _b,
   submittedAt: _a,
   rejectReason: _r,
+  isDemoText: _d,
   ...book
 }: BookRecord): CatalogBook => book;
 

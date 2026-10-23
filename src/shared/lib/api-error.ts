@@ -16,7 +16,8 @@ export type ApiErrorCode =
   | 'fire_own_story'
   | 'already_fired'
   | 'cannot_modify_self'
-  | 'account_blocked';
+  | 'account_blocked'
+  | 'wrong_password';
 
 export class ApiError extends Error {
   constructor(readonly code: ApiErrorCode) {

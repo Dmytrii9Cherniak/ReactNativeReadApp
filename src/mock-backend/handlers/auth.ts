@@ -10,6 +10,9 @@ import { createToken, requireUser } from '../session';
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
+/** Як у застосунку (features/auth/lib/validation.ts) — сервер перевіряє сам. */
+const MIN_PASSWORD_LENGTH = 8;
+
 export const authHandlers: AuthApi = {
   login: ({ email, password }) =>
     respond((db) => {
@@ -81,7 +84,116 @@ export const authHandlers: AuthApi = {
       }
     }),
 
+  requestPasswordReset: (email) =>
+    respond((db) => {
+      const normalized = normalizeEmail(email);
+
+      // Для невідомої пошти відповідь та сама — щоб не можна було перевіряти, хто зареєстрований
+      if (db.users.some((user) => user.email === normalized)) {
+        db.passwordResets = [
+          ...db.passwordResets.filter((item) => item.email !== normalized),
+          { email: normalized, requestedAt: new Date().toISOString() },
+        ];
+      }
+    }),
+
+  resetPassword: ({ email, code, password }) =>
+    respond((db) => {
+      const normalized = normalizeEmail(email);
+      const request = db.passwordResets.find((item) => item.email === normalized);
+      const user = db.users.find((item) => item.email === normalized);
+
+      if (!request || !user || code !== DEMO_VERIFICATION_CODE) {
+        throw new ApiError('invalid_code');
+      }
+
+      if (password.length < MIN_PASSWORD_LENGTH) {
+        throw new ApiError('validation');
+      }
+
+      if (user.blocked) {
+        throw new ApiError('account_blocked');
+      }
+
+      user.password = password;
+      db.passwordResets = db.passwordResets.filter((item) => item !== request);
+
+      return { token: createToken(user.id), user: toUser(user) };
+    }),
+
   me: () => respond((db) => toUser(requireUser(db))),
+
+  updateProfile: ({ nickname }) =>
+    respond((db) => {
+      const user = requireUser(db);
+      const value = nickname.trim();
+
+      if (value.length < 2 || value.length > 32) {
+        throw new ApiError('validation');
+      }
+
+      user.nickname = value;
+
+      return toUser(user);
+    }),
+
+  changeEmail: ({ email, password }) =>
+    respond((db) => {
+      const user = requireUser(db);
+      const normalized = normalizeEmail(email);
+
+      if (user.password !== password) {
+        throw new ApiError('wrong_password');
+      }
+
+      if (db.users.some((item) => item.email === normalized && item.id !== user.id)) {
+        throw new ApiError('email_taken');
+      }
+
+      // Справжній бекенд спершу надсилає код на нову пошту й міняє лише після підтвердження
+      user.email = normalized;
+
+      return toUser(user);
+    }),
+
+  changePassword: ({ currentPassword, newPassword }) =>
+    respond((db) => {
+      const user = requireUser(db);
+
+      if (user.password !== currentPassword) {
+        throw new ApiError('wrong_password');
+      }
+
+      if (newPassword.length < MIN_PASSWORD_LENGTH) {
+        throw new ApiError('validation');
+      }
+
+      // Справжній бекенд тут ще й відкликає інші сесії користувача
+      user.password = newPassword;
+    }),
+
+  deleteAccount: ({ password }) =>
+    respond((db) => {
+      const user = requireUser(db);
+
+      if (user.password !== password) {
+        throw new ApiError('wrong_password');
+      }
+
+      // Видаляємо все особисте; опубліковані книги лишаються в бібліотеці без автора-завантажувача
+      db.users = db.users.filter((item) => item !== user);
+      db.shelves = db.shelves.filter((item) => item.userId !== user.id);
+      db.notifications = db.notifications.filter((item) => item.userId !== user.id);
+      db.stories = db.stories.filter((item) => item.authorId !== user.id);
+      db.stories.forEach((story) => {
+        story.fires = story.fires.filter((fire) => fire.userId !== user.id);
+      });
+      db.books.forEach((book) => {
+        if (book.submittedBy === user.id) {
+          book.submittedBy = null;
+        }
+      });
+    }),
 
   // Токен «живе» на клієнті; справжній бекенд тут відкликає refresh-токен
   logout: () => respond(() => undefined),

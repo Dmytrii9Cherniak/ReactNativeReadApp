@@ -8,7 +8,16 @@ import { persistStorage } from '@/shared/lib/persist';
 import { authApi } from './auth.api';
 import { can, type Permission } from './lib/permissions';
 
-import type { LoginRequest, Session, SignupRequest, User, VerifyRequest } from './types';
+import type {
+  ChangeEmailRequest,
+  ChangePasswordRequest,
+  LoginRequest,
+  ResetPasswordRequest,
+  Session,
+  SignupRequest,
+  User,
+  VerifyRequest,
+} from './types';
 
 interface AuthState {
   token: string | null;
@@ -19,6 +28,13 @@ interface AuthState {
   signup: (body: SignupRequest) => Promise<void>;
   verify: (body: VerifyRequest) => Promise<void>;
   logout: () => Promise<void>;
+  /** Новий пароль за кодом з листа — і одразу вхід */
+  resetPassword: (body: ResetPasswordRequest) => Promise<void>;
+  updateProfile: (body: { nickname: string }) => Promise<void>;
+  changeEmail: (body: ChangeEmailRequest) => Promise<void>;
+  changePassword: (body: ChangePasswordRequest) => Promise<void>;
+  /** Назавжди: акаунт і всі особисті дані; після — вихід */
+  deleteAccount: (password: string) => Promise<void>;
   /** Після запуску: підставити збережений токен і оновити дані користувача */
   restore: () => Promise<void>;
 }
@@ -51,6 +67,27 @@ export const useAuthStore = create<AuthState>()(
 
         async verify(body) {
           startSession(await authApi.verify(body));
+        },
+
+        async resetPassword(body) {
+          startSession(await authApi.resetPassword(body));
+        },
+
+        async updateProfile(body) {
+          set({ user: await authApi.updateProfile(body) });
+        },
+
+        async changeEmail(body) {
+          set({ user: await authApi.changeEmail(body) });
+        },
+
+        async changePassword(body) {
+          await authApi.changePassword(body);
+        },
+
+        async deleteAccount(password) {
+          await authApi.deleteAccount({ password });
+          endSession();
         },
 
         async logout() {

@@ -6,7 +6,7 @@ import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
 import { goBack } from '@/shared/lib/navigation';
 import { spacing } from '@/shared/theme';
-import { Button, Checkbox, Screen, Text, TextField } from '@/shared/ui';
+import { Button, Checkbox, PasswordField, Screen, Text, TextField } from '@/shared/ui';
 
 import { useAuthStore } from './auth.store';
 import { AuthLink } from './components/auth-link';
@@ -53,11 +53,10 @@ export function SignupScreen() {
         autoComplete="email"
         keyboardType="email-address"
       />
-      <TextField
+      <PasswordField
         value={password}
         onChangeText={setPassword}
         placeholder={t.auth.passwordNew}
-        secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
       />

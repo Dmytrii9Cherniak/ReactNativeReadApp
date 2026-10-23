@@ -79,6 +79,7 @@ export function createSeed(version: number): Db {
     submittedBy: null,
     submittedAt: daysAgo(60),
     rejectReason: null,
+    isDemoText: true,
   }));
   const pending: BookRecord[] = PENDING_BOOKS.map(({ book, submittedBy }, index) => ({
     ...book,
@@ -86,6 +87,7 @@ export function createSeed(version: number): Db {
     submittedBy,
     submittedAt: daysAgo(index),
     rejectReason: null,
+    isDemoText: true,
   }));
 
   return {
@@ -106,6 +108,7 @@ export function createSeed(version: number): Db {
       fires: [],
     })),
     pendingSignups: [],
+    passwordResets: [],
     // Вхідні демо-користувача: щоб розділ «Сповіщення» не був порожнім
     notifications: [
       {

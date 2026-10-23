@@ -51,8 +51,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "4f7fab47-5a0c-4103-ba5f-a49980f4e10d"
+        "projectId": "c5b64865-8fbd-4660-9d96-b75e10019e75"
       }
-    }
+    },
+    "owner": "boogeymanxv"
   }
 }

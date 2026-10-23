@@ -4,6 +4,9 @@ export const TABLET_MIN_WIDTH = 768;
 /** Ширина меню (виїзного на телефоні / постійного на планшеті). */
 export const DRAWER_WIDTH = 280;
 
+/** Ширина згорнутого до іконок меню на планшеті. */
+export const DRAWER_COLLAPSED_WIDTH = 72;
+
 /** Максимальна ширина текстового контенту на широких екранах. */
 export const MAX_CONTENT_WIDTH = 720;
 

@@ -11,12 +11,16 @@ import { BookGrid } from './components/book-grid';
 import { useLibraryBooks } from './hooks/use-catalog';
 
 import type { CatalogBook } from './types';
+import type { ReactElement } from 'react';
 
 /** Запит іде, коли користувач перестав друкувати. */
 const SEARCH_DELAY_MS = 300;
 
-/** Макет, екран 1 + пошук. Бібліотеку бачать і гості. */
-export function LibraryScreen() {
+/**
+ * Макет, екран 1 + пошук. Бібліотеку бачать і гості.
+ * `header` — блок над сіткою (у застосунку — «Продовжити читання» з фічі reader).
+ */
+export function LibraryScreen({ header }: { header?: ReactElement }) {
   const t = useT();
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
@@ -53,9 +57,12 @@ export function LibraryScreen() {
           books={state.value.items}
           onPressBook={openBook}
           ListHeaderComponent={
-            <Text variant="sectionLabel" style={styles.label}>
-              {t.library.count(state.value.total)}
-            </Text>
+            <View>
+              {search ? null : header}
+              <Text variant="sectionLabel" style={styles.label}>
+                {t.library.count(state.value.total)}
+              </Text>
+            </View>
           }
           ListEmptyComponent={
             <CenteredMessage title={search ? t.library.notFound : t.library.empty} />

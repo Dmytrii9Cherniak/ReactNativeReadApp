@@ -78,6 +78,8 @@ export default function RootLayout() {
             <Stack.Screen name="login" options={{ title: t.auth.loginTitle }} />
             <Stack.Screen name="signup" options={{ title: t.auth.signupTitle }} />
             <Stack.Screen name="verify" options={{ title: t.auth.verifyTitle }} />
+            <Stack.Screen name="forgot-password" options={{ title: t.auth.forgotTitle }} />
+            <Stack.Screen name="reset-password" options={{ title: t.auth.resetTitle }} />
           </Stack.Protected>
 
           <Stack.Protected guard={can(user, 'campfire.tell')}>

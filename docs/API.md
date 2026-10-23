@@ -4,23 +4,31 @@
 
 - Формат: JSON. Захищені запити — `Authorization: Bearer <token>` (🔒). Роль — у дужках.
 - Помилки: `{ "error": { "code": "<ApiErrorCode>", "message": "…" } }`. Коди — `src/shared/lib/api-error.ts`:
-  `unauthorized` (401), `forbidden` (403), `not_found` (404), `validation` (422), `invalid_credentials`, `email_taken`, `invalid_code`, `story_limit`, `ad_limit`, `faction_cooldown`, `fire_own_story`, `already_fired`, `cannot_modify_self`, `account_blocked` (усі — 409/422 на розсуд бекенду, клієнт дивиться лише на `code`).
+  `unauthorized` (401), `forbidden` (403), `not_found` (404), `validation` (422), `invalid_credentials`, `email_taken`, `invalid_code`, `story_limit`, `ad_limit`, `faction_cooldown`, `fire_own_story`, `already_fired`, `cannot_modify_self`, `account_blocked`, `wrong_password` (усі — 409/422 на розсуд бекенду, клієнт дивиться лише на `code`).
 
-## Авторизація
+## Авторизація й акаунт
 
-| Метод | Шлях                | Тіло                            | Відповідь             |
-| ----- | ------------------- | ------------------------------- | --------------------- |
-| POST  | `/auth/login`       | `{ email, password }`           | `Session`             |
-| POST  | `/auth/signup`      | `{ nickname, email, password }` | `202` — код надіслано |
-| POST  | `/auth/verify`      | `{ email, code }`               | `Session`             |
-| POST  | `/auth/resend-code` | `{ email }`                     | `204`                 |
-| GET   | `/auth/me` 🔒       | —                               | `User`                |
-| POST  | `/auth/logout` 🔒   | —                               | `204`                 |
+| Метод  | Шлях                    | Тіло                               | Відповідь                     |
+| ------ | ----------------------- | ---------------------------------- | ----------------------------- |
+| POST   | `/auth/login`           | `{ email, password }`              | `Session`                     |
+| POST   | `/auth/signup`          | `{ nickname, email, password }`    | `202` — код надіслано         |
+| POST   | `/auth/verify`          | `{ email, code }`                  | `Session`                     |
+| POST   | `/auth/resend-code`     | `{ email }`                        | `204`                         |
+| POST   | `/auth/password/forgot` | `{ email }`                        | `202` — і для невідомої пошти |
+| POST   | `/auth/password/reset`  | `{ email, code, password }`        | `Session`                     |
+| GET    | `/auth/me` 🔒           | —                                  | `User`                        |
+| POST   | `/auth/logout` 🔒       | —                                  | `204`                         |
+| PATCH  | `/me` 🔒                | `{ nickname }`                     | `User`                        |
+| PUT    | `/me/email` 🔒          | `{ email, password }`              | `User`                        |
+| PUT    | `/me/password` 🔒       | `{ currentPassword, newPassword }` | `204`                         |
+| DELETE | `/me` 🔒                | `{ password }`                     | `204`                         |
 
 ```ts
 User    { id; nickname; email; role: 'admin' | 'user'; createdAt }
 Session { token: string; user: User }
 ```
+
+Невірний поточний пароль → `wrong_password`. Зміна пошти на бекенді — з кодом підтвердження на нову адресу. Видалення акаунта прибирає полиці, історії, вогники й сповіщення; опубліковані книги лишаються без завантажувача. Після зміни пароля бекенд відкликає інші сесії.
 
 Реєстрація: пароль ≥ 8 символів, код — 6 цифр з листа; «Я не робот» — Cloudflare Turnstile (токен віджета — разом із `signup`). Нові користувачі — роль `user`, угруповання `loners`, 0 XP.
 
@@ -39,7 +47,8 @@ Session { token: string; user: User }
 CatalogBook { id; title; author; description; language: 'uk' | 'en'; format: 'epub' | 'pdf';
               coverUrl: string | null; readCount: number }   // readCount = кількість полиць «Прочитано»
 CatalogPage { items: CatalogBook[]; total: number; nextOffset: number | null }
-BookContent { bookId: string; paragraphs: string[] }          // текст, розібраний з EPUB/PDF на сервері
+BookContent { bookId: string; paragraphs: string[];           // текст, розібраний з EPUB/PDF на сервері
+              chapters: { title: string; paragraph: number }[] } // зміст: розділ і номер першого абзацу
 ShelfEntry  { book: CatalogBook; shelf: 'want' | 'reading' | 'read'; updatedAt: string }
 ```
 
@@ -51,7 +60,14 @@ ShelfEntry  { book: CatalogBook; shelf: 'want' | 'reading' | 'read'; updatedAt: 
 | ----- | ----------------------- | --------------------------------------------------------------- | --------- |
 | POST  | `/books/submissions` 🔒 | multipart: `title, author, description, language, file, cover?` | `202`     |
 
-Книга отримує статус `pending` і з'являється в черзі адмінки; автор дізнається результат зі сповіщення.
+| GET | `/me/submissions` 🔒 | — | `MySubmission[]` |
+
+```ts
+MySubmission { id; kind: 'book' | 'story'; title; status: 'pending' | 'published' | 'hidden' | 'rejected';
+               rejectReason: string | null; submittedAt }
+```
+
+Книга отримує статус `pending` і з'являється в черзі адмінки; автор бачить стан у «Мої надсилання» й отримує сповіщення. Після завантаження бекенд фоновою задачею розбирає EPUB у `BookContent` (абзаци + зміст з заголовків). PDF — окремо (витяг тексту або рендер сторінок).
 
 ## Досвід, ранги, угруповання
 

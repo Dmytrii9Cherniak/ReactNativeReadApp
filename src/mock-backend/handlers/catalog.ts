@@ -1,7 +1,7 @@
 import type { CatalogApi } from '@/features/catalog';
 import { ApiError } from '@/shared/lib/api-error';
 
-import { buildBookParagraphs } from '../fixtures/book-text';
+import { loadContent } from '../book-files';
 import { toBook } from '../mappers';
 import { respond } from '../respond';
 
@@ -39,6 +39,5 @@ export const catalogHandlers: CatalogApi = {
 
   getBook: (id) => respond((db) => toBook(findPublished(db, id))),
 
-  getContent: (id) =>
-    respond((db) => ({ bookId: id, paragraphs: buildBookParagraphs(findPublished(db, id)) })),
+  getContent: async (id) => loadContent(await respond((db) => findPublished(db, id))),
 };

@@ -31,3 +31,20 @@ export interface VerifyRequest {
   email: string;
   code: string;
 }
+
+export interface ResetPasswordRequest {
+  email: string;
+  code: string;
+  password: string;
+}
+
+export interface ChangeEmailRequest {
+  email: string;
+  /** Поточний пароль — підтвердження, що це власник акаунта */
+  password: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

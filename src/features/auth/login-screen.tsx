@@ -5,7 +5,7 @@ import { env } from '@/config/env';
 import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
 import { spacing } from '@/shared/theme';
-import { Button, Screen, TextField } from '@/shared/ui';
+import { Button, PasswordField, Screen, TextField } from '@/shared/ui';
 
 import { useAuthStore } from './auth.store';
 import { AuthLink } from './components/auth-link';
@@ -50,17 +50,24 @@ export function LoginScreen() {
         keyboardType="email-address"
         textContentType="emailAddress"
       />
-      <TextField
+      <PasswordField
         value={password}
         onChangeText={setPassword}
         placeholder={t.auth.password}
-        secureTextEntry
         autoComplete="current-password"
         textContentType="password"
         onSubmitEditing={handleLogin}
       />
       <FormError message={error} />
       <Button title={t.auth.login} onPress={handleLogin} loading={isSubmitting} />
+      <Button
+        variant="outline"
+        size="sm"
+        title={t.auth.forgotPassword}
+        onPress={() =>
+          router.push({ pathname: '/forgot-password', params: { email: email.trim() } })
+        }
+      />
       <AuthLink
         question={t.auth.noAccount}
         action={t.auth.signup}

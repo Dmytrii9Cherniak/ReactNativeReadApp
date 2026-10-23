@@ -10,8 +10,8 @@ import type { FactionId } from '@/features/progression';
 import { ApiError } from '@/shared/lib/api-error';
 
 import { logAction, notifyUser } from '../activity';
+import { loadContent, removeContent } from '../book-files';
 import { emit, subscribe } from '../events';
-import { buildBookParagraphs } from '../fixtures/book-text';
 import { toBook, toUser } from '../mappers';
 import { respond } from '../respond';
 import { DAY_MS } from '../rules';
@@ -179,18 +179,18 @@ export const adminHandlers: AdminApi = {
         .map((book) => toAdminBook(db, book));
     }),
 
-  getBook: (id) =>
-    respond((db) => {
+  getBook: async (id) => {
+    const { book, details } = await respond((db) => {
       requireAdmin(db);
 
-      const book = getBook(db, id);
+      const record = getBook(db, id);
 
-      return {
-        ...toAdminBook(db, book),
-        // Розбір файлу — справа бекенду; тут початок тестового тексту
-        excerpt: buildBookParagraphs(book).slice(0, EXCERPT_PARAGRAPHS),
-      };
-    }),
+      return { book: record, details: toAdminBook(db, record) };
+    });
+    const content = await loadContent(book);
+
+    return { ...details, excerpt: content.paragraphs.slice(0, EXCERPT_PARAGRAPHS) };
+  },
 
   updateBook: (id, patch) =>
     respond((db) => {
@@ -262,8 +262,8 @@ export const adminHandlers: AdminApi = {
       return toAdminBook(db, book);
     }),
 
-  deleteBook: (id) =>
-    respond((db) => {
+  deleteBook: async (id) => {
+    await respond((db) => {
       const admin = requireAdmin(db);
       const book = getBook(db, id);
 
@@ -271,7 +271,9 @@ export const adminHandlers: AdminApi = {
       db.shelves = db.shelves.filter((shelf) => shelf.bookId !== id);
       logAction(db, admin, 'book.delete', book.title);
       emit('admin');
-    }),
+    });
+    await removeContent(id);
+  },
 
   // ——— Історії ———
 

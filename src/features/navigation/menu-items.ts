@@ -23,6 +23,12 @@ export const MENU_GROUPS: readonly (readonly MenuItem[])[] = [
     { route: 'profile', icon: 'award', label: (t) => t.menu.profile, permission: 'profile' },
     { route: 'upload', icon: 'upload', label: (t) => t.menu.upload, permission: 'books.upload' },
     {
+      route: 'submissions',
+      icon: 'inbox',
+      label: (t) => t.menu.submissions,
+      permission: 'books.upload',
+    },
+    {
       route: 'notifications',
       icon: 'bell',
       label: (t) => t.menu.notifications,
@@ -31,6 +37,7 @@ export const MENU_GROUPS: readonly (readonly MenuItem[])[] = [
     { route: 'admin', icon: 'shield', label: (t) => t.menu.admin, permission: 'admin' },
   ],
   [
+    { route: 'account', icon: 'user', label: (t) => t.menu.account, permission: 'profile' },
     { route: 'settings', icon: 'settings', label: (t) => t.menu.settings },
     { route: 'about', icon: 'info', label: (t) => t.menu.about },
   ],

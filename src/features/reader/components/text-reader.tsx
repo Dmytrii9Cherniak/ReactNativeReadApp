@@ -1,5 +1,5 @@
-import { FlashList, type ViewToken } from '@shopify/flash-list';
-import { useState } from 'react';
+import { FlashList, type FlashListRef, type ViewToken } from '@shopify/flash-list';
+import { useState, type Ref } from 'react';
 import { StyleSheet } from 'react-native';
 
 import type { BookContent } from '@/features/catalog';
@@ -16,15 +16,20 @@ const SAVE_PROGRESS_DELAY_MS = 500;
 
 interface TextReaderProps {
   content: BookContent;
-  onProgress: (fraction: number) => void;
+  /** Частка прочитаного й перший видимий абзац (для «Змісту») */
+  onProgress: (fraction: number, paragraph: number) => void;
+  /** Для переходу до розділу: listRef.current?.scrollToIndex(...) */
+  listRef?: Ref<FlashListRef<string>>;
 }
 
 /**
  * Текст — віртуалізований список абзаців: на екрані лише видимі, тож довгі книги не гальмують.
  * Шрифт і розмір — з налаштувань, змінюються «на льоту».
  */
-export function TextReader({ content, onProgress }: TextReaderProps) {
-  const { bookId, paragraphs } = content;
+export function TextReader({ content, onProgress, listRef }: TextReaderProps) {
+  const { bookId, paragraphs, chapters } = content;
+  // Початки розділів показуємо заголовками
+  const [headings] = useState(() => new Set(chapters.map((chapter) => chapter.paragraph)));
   const save = useReadingProgressStore((s) => s.save);
   const readingStyle = useReadingStyle();
   // Початкова позиція читається один раз: далі список керує прокруткою сам
@@ -56,17 +61,20 @@ export function TextReader({ content, onProgress }: TextReaderProps) {
 
     const fraction = (Math.max(...indexes) + 1) / paragraphs.length;
 
-    onProgress(fraction);
+    onProgress(fraction, Math.min(...indexes));
     savePosition(Math.min(...indexes), fraction);
   };
 
   return (
     <FlashList
+      ref={listRef}
       data={paragraphs}
       keyExtractor={(_, index) => String(index)}
       extraData={readingStyle}
-      renderItem={({ item }) => (
-        <Text variant="reading" style={[readingStyle, styles.paragraph]}>
+      renderItem={({ item, index }) => (
+        <Text
+          variant="reading"
+          style={[readingStyle, styles.paragraph, headings.has(index) && styles.heading]}>
           {item}
         </Text>
       )}
@@ -81,6 +89,7 @@ export function TextReader({ content, onProgress }: TextReaderProps) {
 const styles = StyleSheet.create({
   list: { flex: 1, backgroundColor: colors.background },
   content: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg },
+  heading: { marginTop: spacing.xl, fontWeight: '700', color: colors.primaryLight },
   paragraph: {
     width: '100%',
     maxWidth: MAX_CONTENT_WIDTH,

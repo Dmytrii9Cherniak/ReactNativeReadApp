@@ -15,3 +15,14 @@ export interface BookSubmission {
   file: BookFile;
   cover: BookFile | null;
 }
+
+export type SubmissionStatus = 'pending' | 'published' | 'hidden' | 'rejected';
+
+export interface MySubmission {
+  id: string;
+  kind: 'book' | 'story';
+  title: string;
+  status: SubmissionStatus;
+  rejectReason: string | null;
+  submittedAt: string;
+}
