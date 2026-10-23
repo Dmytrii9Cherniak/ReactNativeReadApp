@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { errorText, useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 import { spacing } from '@/shared/theme';
 import { Chip } from '@/shared/ui';
 
@@ -23,7 +23,7 @@ export function ShelfPicker({ bookId }: { bookId: string }) {
     try {
       await setShelf(bookId, shelf === current ? null : shelf);
     } catch (error) {
-      showMessage(t.common.error, errorText(t, error));
+      notify.error(errorText(t, error));
     }
   };
 

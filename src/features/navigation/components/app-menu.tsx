@@ -3,8 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { can, useAuthStore } from '@/features/auth';
 import { useT } from '@/shared/i18n';
-import { confirm, showMessage } from '@/shared/lib/dialogs';
-import { releaseFocus } from '@/shared/lib/focus';
+import { confirm, notify } from '@/shared/lib/dialogs';
 import { borderWidth, colors, radius, spacing, type ColorToken } from '@/shared/theme';
 import { Icon, Text, type IconName } from '@/shared/ui';
 
@@ -72,7 +71,7 @@ export function AppMenu({ state, navigation }: DrawerContentComponentProps) {
               icon="heart"
               label={t.menu.support}
               color="warm"
-              onPress={() => showMessage(t.settings.donate, t.settings.donateThanks)}
+              onPress={() => notify.info(t.settings.donate, t.settings.donateThanks)}
             />
           ) : null}
         </View>
@@ -100,10 +99,7 @@ function MenuRow({ icon, label, onPress, isActive = false, color }: MenuRowProps
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected: isActive }}
-      onPress={() => {
-        releaseFocus();
-        onPress();
-      }}
+      onPress={onPress}
       style={({ pressed }) => [
         styles.item,
         isActive && styles.activeItem,

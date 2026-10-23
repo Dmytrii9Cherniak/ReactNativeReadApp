@@ -6,7 +6,7 @@ import { useCurrentUser } from '@/features/auth';
 import { useReadingStyle } from '@/features/settings';
 import { useAsync } from '@/shared/hooks/use-async';
 import { errorText, formatRelativeTime, useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 import { borderWidth, campfireColors, spacing } from '@/shared/theme';
 import { CenteredMessage, Loader, Screen, Text } from '@/shared/ui';
 
@@ -67,7 +67,7 @@ function StoryContent({ initial }: { initial: Story }) {
         setLocal(await campfireApi.fire(story.id));
       }
     } catch (error) {
-      showMessage(t.common.error, errorText(t, error));
+      notify.error(errorText(t, error));
     } finally {
       setIsFiring(false);
     }

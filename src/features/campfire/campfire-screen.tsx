@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useCan } from '@/features/auth';
 import { useProgress } from '@/features/progression';
 import { MAX_CONTENT_WIDTH } from '@/shared/constants/layout';
 import { errorText, useT } from '@/shared/i18n';
-import { campfireColors, spacing } from '@/shared/theme';
+import { borderWidth, campfireColors, spacing } from '@/shared/theme';
 import { Button, CenteredMessage, Loader, Text } from '@/shared/ui';
 
 import { useCampfireStore } from './campfire.store';
@@ -19,6 +20,7 @@ export function CampfireScreen() {
   const load = useCampfireStore((s) => s.load);
   const canTell = useCan('campfire.tell');
   const progress = useProgress();
+  const insets = useSafeAreaInsets();
   const [error, setError] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -89,12 +91,13 @@ export function CampfireScreen() {
         style={styles.list}
         contentContainerStyle={styles.content}
       />
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>
         <Text variant="caption" style={styles.limit}>
           {canTell ? t.campfire.oncePerDay : t.campfire.loginToTell}
         </Text>
         <Button
           variant="ember"
+          size="sm"
           icon="plus"
           title={t.campfire.tell}
           disabled={hasToldToday}
@@ -114,17 +117,21 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     gap: spacing.md,
     padding: spacing.lg,
-    paddingBottom: 120,
   },
   header: { gap: spacing.xs, marginBottom: spacing.sm },
   title: { color: campfireColors.title },
   subtitle: { color: campfireColors.textSecondary },
+  // Нижня панель, а не плаваюча кнопка: не перекриває картки й «Читати →»
   footer: {
-    position: 'absolute',
-    right: spacing.lg,
-    bottom: spacing.xl,
-    alignItems: 'flex-end',
-    gap: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderTopWidth: borderWidth.hairline,
+    borderTopColor: campfireColors.border,
+    backgroundColor: campfireColors.background,
   },
-  limit: { color: campfireColors.textMuted },
+  limit: { flexShrink: 1, color: campfireColors.textMuted },
 });

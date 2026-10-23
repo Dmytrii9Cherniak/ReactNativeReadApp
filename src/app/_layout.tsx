@@ -12,11 +12,15 @@ import { READING_FONT_ASSETS, useRestoreBrightness } from '@/features/settings';
 import { useShelvesStore } from '@/features/shelves';
 import { useT } from '@/shared/i18n';
 import { runInBackground } from '@/shared/lib/background';
-import { campfireColors, colors, navigationTheme } from '@/shared/theme';
-import { HeaderTitle } from '@/shared/ui';
+import { installFocusRelease } from '@/shared/lib/focus';
+import { applyGlobalStyles, campfireColors, colors, navigationTheme } from '@/shared/theme';
+import { HeaderTitle, NotificationHost } from '@/shared/ui';
 
 // Заставка тримається, поки не завантажені шрифти й не перевірена збережена сесія
 runInBackground(() => SplashScreen.preventAutoHideAsync());
+// Web: смуги прокрутки й фон сторінки в стилі застосунку; фокус не лишається на натиснутих кнопках
+applyGlobalStyles();
+installFocusRelease();
 
 /** Будь-яка помилка рендеру нижче — запасний екран замість падіння застосунку. */
 export { ErrorFallback as ErrorBoundary } from '@/shared/ui';
@@ -83,6 +87,7 @@ export default function RootLayout() {
             <Stack.Screen name="faction" options={{ title: t.progression.factionTitle }} />
           </Stack.Protected>
         </Stack>
+        <NotificationHost />
       </ThemeProvider>
     </GestureHandlerRootView>
   );

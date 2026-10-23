@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { useCurrentUser } from '@/features/auth';
 import { useWatchAd } from '@/features/progression';
 import { LANGUAGES, useLanguageStore, useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 import { borderWidth, colors, spacing } from '@/shared/theme';
 import { Button, Chip, Screen, Text } from '@/shared/ui';
 
@@ -53,7 +53,7 @@ export function SettingsScreen() {
         <Button
           icon="heart"
           title={t.settings.donate}
-          onPress={() => showMessage(t.settings.donate, t.settings.donateThanks)}
+          onPress={() => notify.info(t.settings.donate, t.settings.donateThanks)}
         />
       </View>
     </Screen>

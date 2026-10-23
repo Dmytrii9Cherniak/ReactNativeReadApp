@@ -6,6 +6,8 @@ export const uk = {
     name: 'Stalker Books',
   },
   common: {
+    confirm: 'Так',
+    close: 'Закрити',
     retry: 'Спробувати ще раз',
     crashTitle: 'Щось пішло не так',
     crashHint: 'Екран не вдалося показати. Спробуйте ще раз або поверніться на головну.',

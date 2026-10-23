@@ -31,7 +31,8 @@ export function Screen({
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        indicatorStyle="white">
         <View style={[styles.column, { gap }, contentStyle]}>{children}</View>
       </ScrollView>
       {footer ? <View style={styles.footer}>{footer}</View> : null}

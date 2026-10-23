@@ -5,7 +5,7 @@ import { FlatList, Pressable, StyleSheet, View } from 'react-native';
 import { MAX_CONTENT_WIDTH } from '@/shared/constants/layout';
 import { useAsync } from '@/shared/hooks/use-async';
 import { errorText, useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 import { borderWidth, colors, spacing } from '@/shared/theme';
 import { Button, CenteredMessage, Loader, Text, UnderlineTabs } from '@/shared/ui';
 
@@ -30,7 +30,7 @@ export function ModerationScreen() {
         : moderationApi.reject(item.kind, item.id));
       setDecided((ids) => new Set(ids).add(item.id));
     } catch (error) {
-      showMessage(t.common.error, errorText(t, error));
+      notify.error(errorText(t, error));
     }
   };
 
@@ -69,12 +69,14 @@ export function ModerationScreen() {
               </Pressable>
               <Button
                 variant="success"
+                size="sm"
                 icon="check"
                 accessibilityLabel={t.moderation.approve}
                 onPress={() => void decide(item, true)}
               />
               <Button
                 variant="danger"
+                size="sm"
                 icon="x"
                 accessibilityLabel={t.moderation.reject}
                 onPress={() => void decide(item, false)}

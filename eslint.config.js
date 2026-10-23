@@ -10,11 +10,11 @@ const noDeepFeatureImports = {
   message: 'Імпортуй з публічного API фічі: `@/features/<name>` (index.ts).',
 };
 
-/** На web `Alert` з react-native нічого не показує. */
+/** Системні Alert не використовуємо: на web їх немає, а вигляд — не в стилі застосунку. */
 const noRawAlert = {
   name: 'react-native',
   importNames: ['Alert'],
-  message: 'Використовуй `confirm` / `showMessage` з `@/shared/lib/dialogs`.',
+  message: 'Використовуй `notify` / `confirm` з `@/shared/lib/dialogs`.',
 };
 
 module.exports = defineConfig([
@@ -77,9 +77,4 @@ module.exports = defineConfig([
     },
   },
 
-  {
-    // Єдине місце, де дозволено Alert
-    files: ['src/shared/lib/dialogs.ts'],
-    rules: { 'no-restricted-imports': 'off' },
-  },
 ]);

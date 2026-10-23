@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { errorText, useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 
 import { useProgressionStore } from '../progression.store';
 
@@ -16,9 +16,9 @@ export function useWatchAd() {
 
     try {
       // Справжній ролик покаже рекламний SDK; тут — одразу нагорода
-      showMessage(t.progression.adReward(await watchAd()));
+      notify.success(t.progression.adReward(await watchAd()));
     } catch (error) {
-      showMessage(t.common.error, errorText(t, error));
+      notify.error(errorText(t, error));
     } finally {
       setIsWatching(false);
     }

@@ -4,7 +4,7 @@ import { FlatList, StyleSheet, View } from 'react-native';
 import { ROLES, useCurrentUser, type Role, type User } from '@/features/auth';
 import { MAX_CONTENT_WIDTH } from '@/shared/constants/layout';
 import { errorText, useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 import { borderWidth, colors, spacing } from '@/shared/theme';
 import { CenteredMessage, Chip, Loader, Text } from '@/shared/ui';
 
@@ -39,7 +39,7 @@ export function AdminScreen() {
 
       setUsers((list) => list?.map((item) => (item.id === updated.id ? updated : item)) ?? null);
     } catch (caught) {
-      showMessage(t.common.error, errorText(t, caught));
+      notify.error(errorText(t, caught));
     }
   };
 

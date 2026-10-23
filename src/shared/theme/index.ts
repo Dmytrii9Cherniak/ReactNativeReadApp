@@ -1,3 +1,4 @@
+export { applyGlobalStyles } from './global-styles';
 export { navigationTheme } from './navigation-theme';
 export {
   borderWidth,

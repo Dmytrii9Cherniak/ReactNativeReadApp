@@ -19,7 +19,7 @@ src/
     theme/                   tokens.ts — палітри «Зона» і «Вогнище», відступи, радіуси, типографіка
     i18n/                    Тексти UA (за замовчуванням) / EN, useT(), errorText(), formatRelativeTime()
     hooks/                   useLayout, useAsync, useSubmit, useDebouncedCallback
-    lib/                     dialogs, kv-storage, persist, api-error (коди помилок), api-session (токен)
+    lib/                     dialogs (notify / confirm), kv-storage, persist, api-error (коди помилок), api-session (токен)
     constants/               брейкпоінти й розміри
   config/env.ts              Змінні середовища, `isDemo`
 ```
@@ -88,6 +88,6 @@ src/
 - Текст — тільки через `shared/ui/Text` (`variant`, `color`). Рядки інтерфейсу — тільки через `useT()`.
 - Іконки — `shared/ui/Icon` (Feather).
 - Платформи: iOS, Android, Web. Різна реалізація — окремий файл `*.web.ts(x)` з тим самим API. Спільний контракт — у `*.types.ts`.
-- Не використовувати `Alert` з react-native напряму — тільки `shared/lib/dialogs`.
+- Сповіщення й підтвердження — тільки `notify` / `confirm` з `shared/lib/dialogs` (свої компоненти застосунку, однакові на всіх платформах). Системні `Alert`, `window.alert/confirm` — заборонені.
 - Нові пакети — через `npx expo install`.
 - Перед комітом: `npm run check` (typecheck + ESLint + Prettier).

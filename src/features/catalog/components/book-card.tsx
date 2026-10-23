@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet } from 'react-native';
 
-import { releaseFocus } from '@/shared/lib/focus';
 import { spacing } from '@/shared/theme';
 import { Text } from '@/shared/ui';
 
@@ -19,10 +18,7 @@ export function BookCard({ book, onPress, showAuthor = true }: BookCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={() => {
-        releaseFocus();
-        onPress(book);
-      }}
+      onPress={() => onPress(book)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <BookCover book={book} />
       <Text variant="bookTitle" numberOfLines={2}>

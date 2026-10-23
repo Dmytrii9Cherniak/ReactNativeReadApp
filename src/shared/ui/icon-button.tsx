@@ -1,6 +1,5 @@
 import { Pressable, StyleSheet } from 'react-native';
 
-import { releaseFocus } from '@/shared/lib/focus';
 import { spacing, type ColorToken } from '@/shared/theme';
 
 import { Icon, type IconName } from './icon';
@@ -26,10 +25,7 @@ export function IconButton({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       hitSlop={spacing.sm}
-      onPress={() => {
-        releaseFocus();
-        onPress();
-      }}
+      onPress={onPress}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
       <Icon name={icon} size={size} color={color} />
     </Pressable>

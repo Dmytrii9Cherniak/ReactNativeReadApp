@@ -5,7 +5,7 @@ import { env } from '@/config/env';
 import { DEMO_VERIFICATION_CODE } from '@/mock-backend';
 import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
-import { showMessage } from '@/shared/lib/dialogs';
+import { notify } from '@/shared/lib/dialogs';
 import { spacing } from '@/shared/theme';
 import { Button, CenteredMessage, Screen, Text, TextField } from '@/shared/ui';
 
@@ -22,7 +22,7 @@ export function VerifyScreen({ email }: { email: string }) {
   const { submit, isSubmitting, error, setError } = useSubmit(verify);
   const resend = useSubmit(async () => {
     await authApi.resendCode(email);
-    showMessage(t.auth.resent);
+    notify.success(t.auth.resent);
   });
 
   // Екран відкрито без пошти (пряме посилання, оновлення сторінки) — підтверджувати нічого
