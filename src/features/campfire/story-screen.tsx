@@ -5,10 +5,11 @@ import { StyleSheet, View } from 'react-native';
 import { useCurrentUser } from '@/features/auth';
 import { useReadingStyle } from '@/features/settings';
 import { useAsync } from '@/shared/hooks/use-async';
+import { useShare } from '@/shared/hooks/use-share';
 import { errorText, formatRelativeTime, useT } from '@/shared/i18n';
 import { notify } from '@/shared/lib/dialogs';
 import { borderWidth, campfireColors, spacing } from '@/shared/theme';
-import { CenteredMessage, Loader, Screen, Text } from '@/shared/ui';
+import { CenteredMessage, IconButton, Loader, Screen, Text } from '@/shared/ui';
 
 import { campfireApi } from './campfire.api';
 import { useCampfireStore } from './campfire.store';
@@ -47,6 +48,7 @@ function StoryContent({ initial }: { initial: Story }) {
   const [local, setLocal] = useState(initial);
   const story = fromFeed ?? local;
   const readingStyle = useReadingStyle();
+  const share = useShare();
   const [isFiring, setIsFiring] = useState(false);
 
   const isOwn = user?.id === story.author.id;
@@ -87,13 +89,25 @@ function StoryContent({ initial }: { initial: Story }) {
         </Text>
       ))}
       <View style={styles.divider} />
-      <FireButton
-        count={story.fires}
-        label={t.campfire.fire(story.fires)}
-        isLit={story.firedByMe}
-        disabled={isFiring || isOwn || story.firedByMe || story.status !== 'published'}
-        onPress={() => void handleFire()}
-      />
+      <View style={styles.actions}>
+        <FireButton
+          count={story.fires}
+          label={t.campfire.fire(story.fires)}
+          isLit={story.firedByMe}
+          disabled={isFiring || isOwn || story.firedByMe || story.status !== 'published'}
+          onPress={() => void handleFire()}
+        />
+        {story.status === 'published' ? (
+          <IconButton
+            icon="share-2"
+            accessibilityLabel={t.share.action}
+            color="ember"
+            onPress={() =>
+              void share({ message: t.share.story(story.title), path: `/story/${story.id}` })
+            }
+          />
+        ) : null}
+      </View>
     </Screen>
   );
 }
@@ -103,4 +117,5 @@ const styles = StyleSheet.create({
   title: { color: campfireColors.title },
   body: { color: campfireColors.body },
   divider: { height: borderWidth.hairline, backgroundColor: campfireColors.border },
+  actions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
 });

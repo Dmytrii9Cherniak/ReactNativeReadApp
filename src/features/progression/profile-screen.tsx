@@ -17,8 +17,11 @@ import { useWatchAd } from './hooks/use-watch-ad';
 import { XP_LIMITS } from './lib/xp-limits';
 import { useProgressionStore } from './progression.store';
 
+import type { ReactNode } from 'react';
+
 /** Профіль (дизайн-документ, розділ 9): ранг, шкала XP, статистика, «Сьогодні», реклама. */
-export function ProfileScreen() {
+/** `extra` — блоки інших фіч під профілем (статистика читання, досягнення); збираються в маршруті. */
+export function ProfileScreen({ extra }: { extra?: ReactNode }) {
   const t = useT();
   const user = useCurrentUser();
   const progress = useProgressionStore((s) => s.progress);
@@ -81,6 +84,8 @@ export function ProfileScreen() {
       <Text variant="caption" color="textFaint" style={styles.center}>
         {t.progression.adsLeft(adsLeft)}
       </Text>
+
+      {extra}
 
       <RankLadder xp={progress.xp} factionId={progress.factionId} />
     </Screen>

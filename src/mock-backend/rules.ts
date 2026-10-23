@@ -1,4 +1,4 @@
-import type { DailyCounters, UserRecord } from './db';
+import type { DailyCounters, Db, UserRecord } from './db';
 
 /**
  * Правила досвіду з дизайн-документа (розділ 2). На справжньому бекенді
@@ -42,4 +42,30 @@ export function todayOf(user: UserRecord): DailyCounters {
 
 export function isYesterday(day: string | null): boolean {
   return day === dayKey(new Date(Date.now() - DAY_MS));
+}
+
+/** Понеділок поточного тижня (UTC), YYYY-MM-DD — ключ тижневого рейтингу. */
+export function weekKey(date = new Date()): string {
+  const monday = new Date(date);
+
+  monday.setUTCDate(date.getUTCDate() - ((date.getUTCDay() + 6) % 7));
+
+  return dayKey(monday);
+}
+
+/** Нарахувати досвід: користувачу й у тижневий рейтинг його угруповання. */
+export function awardXp(db: Db, user: UserRecord, amount: number): void {
+  const week = weekKey();
+
+  if (db.factionWeek.week !== week) {
+    db.factionWeek = {
+      week,
+      xp: Object.fromEntries(
+        Object.keys(db.factionWeek.xp).map((id) => [id, 0]),
+      ) as Db['factionWeek']['xp'],
+    };
+  }
+
+  user.xp += amount;
+  db.factionWeek.xp[user.factionId] = (db.factionWeek.xp[user.factionId] ?? 0) + amount;
 }

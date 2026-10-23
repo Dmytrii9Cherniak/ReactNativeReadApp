@@ -7,8 +7,10 @@ export {
   coverTones,
   fonts,
   radius,
+  readerPalettes,
   spacing,
   typography,
   type ColorToken,
+  type ReaderPaletteId,
   type TypographyVariant,
 } from './tokens';

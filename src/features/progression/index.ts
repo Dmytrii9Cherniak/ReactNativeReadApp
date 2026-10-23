@@ -9,4 +9,4 @@ export { getRank, RANK_THRESHOLDS, type Rank } from './lib/ranks';
 export { ProfileScreen } from './profile-screen';
 export { useProgress, useProgressionStore } from './progression.store';
 export type { ProgressionApi } from './progression.api.types';
-export type { AdReward, FactionId, FactionStats, Progress, TodayXp } from './types';
+export type { AdReward, FactionId, FactionRating, FactionStats, Progress, TodayXp } from './types';

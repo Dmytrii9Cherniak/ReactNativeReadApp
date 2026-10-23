@@ -118,10 +118,12 @@ export interface Db {
   audit: AuditRecord[];
   /** Учасники угруповань поза тестовою базою — щоб цифри були «живими» */
   factionBaseMembers: Record<FactionId, number>;
+  /** Досвід угруповань за поточний тиждень (рейтинг); скидається щопонеділка */
+  factionWeek: { week: string; xp: Record<FactionId, number> };
 }
 
 /** Змінюється при зміні структури — стара збережена база тоді просто перестворюється. */
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const STORAGE_KEY = 'mock-backend-db';
 
 let db: Db | null = null;

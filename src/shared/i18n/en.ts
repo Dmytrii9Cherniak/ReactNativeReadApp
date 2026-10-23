@@ -1,3 +1,5 @@
+import { formatSize } from '@/shared/lib/format-size';
+
 import type { Messages } from './uk';
 
 const plural = (count: number, one: string, many: string) => (count === 1 ? one : many);
@@ -37,6 +39,7 @@ export const en: Messages = {
     unknown: 'Something went wrong. Please try again',
   },
   menu: {
+    downloads: 'Downloads',
     account: 'Account',
     submissions: 'My submissions',
     collapse: 'Collapse menu',
@@ -130,6 +133,12 @@ export const en: Messages = {
     mustAgree: 'You must accept the terms',
   },
   settings: {
+    readerTheme: 'Reading theme',
+    themes: { zone: 'Zone', sepia: 'Sepia', night: 'Night' },
+    margins: 'Margins',
+    marginSizes: { narrow: 'Narrow', normal: 'Normal', wide: 'Wide' },
+    align: 'Alignment',
+    aligns: { left: 'Left', justify: 'Justified' },
     brightness: 'Brightness',
     brightnessWeb: 'Brightness can be changed on phones and tablets only',
     textSize: 'Text size',
@@ -142,6 +151,21 @@ export const en: Messages = {
     donateThanks: 'Thank you! The donation link will appear when the app launches.',
   },
   reader: {
+    bookmarks: 'Bookmarks',
+    addBookmark: 'Add bookmark',
+    removeBookmark: 'Remove bookmark',
+    bookmarkAdded: 'Bookmark added',
+    noBookmarks: 'No bookmarks — long-press a paragraph to add one',
+    shareQuote: 'Share quote',
+    paragraph: 'Paragraph',
+    search: 'Search in book',
+    searchPlaceholder: 'Word or phrase',
+    searchResults: (count: number) => `Found: ${count}`,
+    searchNone: 'Nothing found',
+    listen: 'Listen',
+    listenUnavailable: 'Reading aloud is unavailable: no voice for this language on this device',
+    stopListening: 'Stop reading aloud',
+    speed: 'Speed',
     contents: 'Contents',
     pdfUnavailable:
       'PDF text is not available yet — the server will extract it once the backend is live.',
@@ -291,6 +315,61 @@ export const en: Messages = {
     book: 'Book',
     story: 'Story',
     uploadBook: 'Submit a book',
+  },
+  offline: {
+    banner: 'No connection — downloaded books are available',
+    openDownloads: 'Open downloads',
+  },
+  downloads: {
+    download: 'Download for offline reading',
+    downloaded: 'Downloaded to this device',
+    remove: 'Remove from device',
+    removed: 'Removed from device',
+    saved: 'Saved — you can read it offline',
+    empty: 'No downloaded books. Open a book and tap “Download”.',
+    size: (bytes: number) => formatSize(bytes, 'en-US', ['B', 'KB', 'MB', 'GB']),
+    total: (size: string) => `Total on device: ${size}`,
+  },
+  stats: {
+    title: 'Reading',
+    today: (minutes: number, goal: number) => `${minutes} of ${goal} min today`,
+    goal: 'Daily goal',
+    minutes: (minutes: number) => `${minutes} min`,
+    streak: (days: number) => `Streak: ${days} ${plural(days, 'day', 'days')}`,
+    finished: (count: number) => `Books finished: ${count}`,
+    weekdays: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+    goalReached: 'Daily goal reached!',
+  },
+  achievements: {
+    title: 'Achievements',
+    progress: (unlocked: number, total: number) => `${unlocked} of ${total}`,
+    unlocked: (title: string) => `New achievement: ${title}`,
+    items: {
+      first_book: { title: 'First book', description: 'Finish your first book' },
+      bookworm: { title: 'Bookworm', description: 'Finish 5 books' },
+      first_story: { title: 'First story', description: 'Tell a story by the campfire' },
+      storyteller: { title: 'Storyteller', description: 'Tell 10 stories' },
+      fire_keeper: { title: 'Fire keeper', description: 'Receive 100 fires' },
+      true_stalker: { title: 'True stalker', description: 'Reach the “Stalker” rank' },
+      streak_week: { title: 'A week without gaps', description: 'Read 7 days in a row' },
+      marathon: { title: 'Marathon', description: 'Read 60 minutes in a day' },
+      night_reader: { title: 'Night reader', description: 'Read after midnight' },
+      quote_collector: { title: 'Quote collector', description: 'Make 5 bookmarks' },
+      prepper: { title: 'Prepper', description: 'Download a book to your device' },
+    },
+  },
+  rating: {
+    title: 'Weekly faction rating',
+    hint: 'Total experience earned by members this week. Resets every Monday.',
+    weekXp: (xp: number) => `${xp.toLocaleString('en-US')} XP`,
+    yours: 'yours',
+  },
+  share: {
+    action: 'Share',
+    book: (title: string, author: string) => `“${title}” by ${author}. Reading it in Stalker Books`,
+    story: (title: string) => `A story by the campfire: “${title}”`,
+    quote: (title: string) => `From “${title}”`,
+    copied: 'Link copied',
   },
   admin: {
     title: 'Admin',

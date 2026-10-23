@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { useAchievementAnnouncer } from '@/features/achievements';
 import { useAdminStore } from '@/features/admin';
 import { can, useAuthStore } from '@/features/auth';
 import { useNotificationsStore } from '@/features/notifications';
@@ -16,7 +17,7 @@ import { useT } from '@/shared/i18n';
 import { runInBackground } from '@/shared/lib/background';
 import { installFocusRelease } from '@/shared/lib/focus';
 import { applyGlobalStyles, campfireColors, colors, navigationTheme } from '@/shared/theme';
-import { HeaderTitle, NotificationHost } from '@/shared/ui';
+import { HeaderTitle, NotificationHost, OfflineBanner } from '@/shared/ui';
 
 // Заставка тримається, поки не завантажені шрифти й не перевірена збережена сесія
 runInBackground(() => SplashScreen.preventAutoHideAsync());
@@ -35,6 +36,7 @@ export default function RootLayout() {
   const isReady = (fontsLoaded || fontsError !== null) && isAuthReady;
 
   useRestoreBrightness();
+  useAchievementAnnouncer();
   useUserData(user?.id ?? null);
   useLiveUpdates(user?.id ?? null, can(user, 'admin'));
 
@@ -103,6 +105,7 @@ export default function RootLayout() {
             <Stack.Screen name="admin/broadcast" options={{ title: t.admin.sections.broadcast }} />
           </Stack.Protected>
         </Stack>
+        <OfflineBanner />
         <NotificationHost />
       </ThemeProvider>
     </GestureHandlerRootView>

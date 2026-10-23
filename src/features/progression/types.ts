@@ -41,3 +41,10 @@ export interface AdReward {
   xp: number;
   progress: Progress;
 }
+
+/** Рейтинг угруповань за поточний тиждень — GET /factions/rating. */
+export interface FactionRating {
+  id: FactionId;
+  /** Сума XP, набраного учасниками з понеділка */
+  weekXp: number;
+}

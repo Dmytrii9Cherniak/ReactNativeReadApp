@@ -1,6 +1,6 @@
 import type { CatalogBook } from '@/features/catalog';
 
-import { DAY_MS, dayKey, emptyDaily } from '../rules';
+import { DAY_MS, dayKey, emptyDaily, weekKey } from '../rules';
 import { FIXTURE_BOOKS } from './books';
 import { FIXTURE_STORIES } from './stories';
 import { FIXTURE_USERS } from './users';
@@ -149,6 +149,19 @@ export function createSeed(version: number): Db {
         createdAt: daysAgo(2),
       },
     ],
+    // Тижневий рейтинг «з історією», щоб таблиця не була порожньою
+    factionWeek: {
+      week: weekKey(),
+      xp: {
+        loners: 1840,
+        bandits: 960,
+        military: 1120,
+        duty: 2210,
+        freedom: 1530,
+        scientists: 870,
+        mercenaries: 640,
+      },
+    },
     // Кількість учасників з макета «Угруповання»
     factionBaseMembers: {
       loners: 8412,

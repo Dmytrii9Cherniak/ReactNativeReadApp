@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import { useDebouncedCallback } from '@/shared/hooks/use-debounced-callback';
 import { useT } from '@/shared/i18n';
 import { colors, spacing } from '@/shared/theme';
-import { CenteredMessage, Loader, Text, TextField } from '@/shared/ui';
+import { Button, CenteredMessage, Loader, Text, TextField } from '@/shared/ui';
 
 import { BookGrid } from './components/book-grid';
 import { useLibraryBooks } from './hooks/use-catalog';
@@ -51,7 +51,15 @@ export function LibraryScreen({ header }: { header?: ReactElement }) {
       {state.status === 'loading' ? (
         <Loader />
       ) : state.status === 'error' ? (
-        <CenteredMessage title={t.common.loadError} description={state.message} />
+        <CenteredMessage title={t.common.loadError} description={state.message}>
+          {/* Без мережі бібліотека не завантажиться — але завантажені книги доступні */}
+          <Button
+            variant="outline"
+            icon="download"
+            title={t.offline.openDownloads}
+            onPress={() => router.push('/downloads')}
+          />
+        </CenteredMessage>
       ) : (
         <BookGrid
           books={state.value.items}

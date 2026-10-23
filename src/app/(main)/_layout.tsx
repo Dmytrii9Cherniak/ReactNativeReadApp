@@ -66,6 +66,7 @@ export default function MainLayout() {
           sceneStyle: { backgroundColor: campfireColors.background },
         }}
       />
+      <Drawer.Screen name="downloads" options={{ title: t.menu.downloads }} />
       <Drawer.Screen name="settings" options={{ title: t.menu.settings }} />
       <Drawer.Screen name="about" options={{ title: t.menu.about }} />
 

@@ -47,6 +47,18 @@ export const colors = {
 
 export type ColorToken = keyof typeof colors;
 
+/**
+ * Теми рідера: «Зона» — як застосунок; сепія — тепле «паперове» тло вдень;
+ * ніч — чисто чорне тло (на AMOLED-екранах економить заряд) і приглушений текст.
+ */
+export const readerPalettes = {
+  zone: { background: colors.background, text: colors.text, heading: colors.primaryLight },
+  sepia: { background: '#F3EAD7', text: '#3F3122', heading: '#7A5A2F' },
+  night: { background: '#000000', text: '#A9A9A0', heading: '#7E9160' },
+} as const;
+
+export type ReaderPaletteId = keyof typeof readerPalettes;
+
 /** Тони заглушок обкладинок (поки немає зображення) — з допоміжної палітри макета. */
 export const coverTones = ['#3A4028', '#4A3A28', '#2E3A3E', '#402828', '#4A5A33'] as const;
 

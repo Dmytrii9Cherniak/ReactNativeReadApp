@@ -5,7 +5,7 @@ import { createId, type Db, type StoryRecord, type UserRecord } from '../db';
 import { emit } from '../events';
 import { toStory } from '../mappers';
 import { respond } from '../respond';
-import { XP_RULES, dayKey, isYesterday, todayOf } from '../rules';
+import { XP_RULES, awardXp, dayKey, isYesterday, todayOf } from '../rules';
 import { findCurrentUser, isAdmin, requireUser } from '../session';
 
 /**
@@ -87,7 +87,7 @@ export const campfireHandlers: CampfireApi = {
 
       db.stories.push(story);
       today.story += 1;
-      user.xp += XP_RULES.story;
+      awardXp(db, user, XP_RULES.story);
       user.storiesCount += 1;
       trackNonStop(user);
 
@@ -127,7 +127,7 @@ export const campfireHandlers: CampfireApi = {
         // Захист від накруток: досвід лише від «Новенького» і вище, не більше 20 вогників на добу
         if (user.xp >= XP_RULES.minXpToGiveFire && authorToday.fires < XP_RULES.firesPerDay) {
           authorToday.fires += 1;
-          author.xp += XP_RULES.fire;
+          awardXp(db, author, XP_RULES.fire);
         }
       }
 

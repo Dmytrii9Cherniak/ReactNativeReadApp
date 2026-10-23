@@ -8,6 +8,7 @@ import { borderWidth, colors, radius, spacing } from '@/shared/theme';
 import { Button, Card, Loader, Screen, Text } from '@/shared/ui';
 
 import { FactionEmblem } from './components/faction-emblem';
+import { WeeklyRating } from './components/weekly-rating';
 import { FACTIONS } from './lib/factions';
 import { XP_LIMITS } from './lib/xp-limits';
 import { progressionApi } from './progression.api';
@@ -81,6 +82,7 @@ export function FactionScreen() {
           {t.progression.factionHint}
         </Text>
       </Card>
+      <WeeklyRating currentFaction={current} />
       <View style={styles.grid}>
         {FACTIONS.map((faction) => {
           const isCurrent = faction.id === current;

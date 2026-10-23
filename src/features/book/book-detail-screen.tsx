@@ -3,8 +3,10 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { useCan } from '@/features/auth';
 import { BookCover, useCatalogBook } from '@/features/catalog';
+import { DownloadButton } from '@/features/downloads';
 import { useReadingPosition } from '@/features/reader';
 import { ShelfPicker } from '@/features/shelves';
+import { useShare } from '@/shared/hooks/use-share';
 import { useT } from '@/shared/i18n';
 import { colors, spacing } from '@/shared/theme';
 import { Button, CenteredMessage, Loader, Text } from '@/shared/ui';
@@ -18,6 +20,7 @@ export function BookDetailScreen({ bookId }: { bookId: string }) {
   const state = useCatalogBook(bookId);
   const canShelve = useCan('shelves');
   const position = useReadingPosition(bookId);
+  const share = useShare();
 
   if (state.status === 'loading') {
     return <Loader />;
@@ -74,6 +77,20 @@ export function BookDetailScreen({ bookId }: { bookId: string }) {
             icon="book-open"
             onPress={() => router.push({ pathname: '/reader/[id]', params: { id: book.id } })}
           />
+          <View style={styles.secondary}>
+            <DownloadButton book={book} />
+            <Button
+              variant="outline"
+              icon="share-2"
+              title={t.share.action}
+              onPress={() =>
+                void share({
+                  message: t.share.book(book.title, book.author),
+                  path: `/book/${book.id}`,
+                })
+              }
+            />
+          </View>
         </View>
       </ScrollView>
     </>
@@ -87,4 +104,5 @@ const styles = StyleSheet.create({
   hero: { alignItems: 'center', gap: spacing.sm },
   center: { textAlign: 'center', marginTop: spacing.md },
   section: { gap: spacing.sm },
+  secondary: { gap: spacing.sm, marginTop: -spacing.md },
 });

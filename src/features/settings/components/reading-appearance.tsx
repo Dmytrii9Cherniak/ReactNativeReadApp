@@ -1,10 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 
 import { useT } from '@/shared/i18n';
-import { borderWidth, colors, radius, spacing } from '@/shared/theme';
+import { borderWidth, colors, radius, spacing, type ReaderPaletteId } from '@/shared/theme';
 import { Chip, Text } from '@/shared/ui';
 
+import { useReaderLook } from '../hooks/use-reader-look';
 import { useReadingStyle } from '../hooks/use-reading-style';
+import { READER_ALIGN_ORDER, READER_MARGIN_ORDER } from '../lib/reader-layout';
 import { READING_FONTS } from '../lib/reading-fonts';
 import { TEXT_SIZE } from '../lib/text-size';
 import { useSettingsStore } from '../settings.store';
@@ -18,6 +20,13 @@ export function ReadingAppearance() {
   const setFontSize = useSettingsStore((s) => s.setReaderFontSize);
   const setFont = useSettingsStore((s) => s.setReaderFont);
   const readingStyle = useReadingStyle();
+  const look = useReaderLook();
+  const theme = useSettingsStore((s) => s.readerTheme);
+  const margin = useSettingsStore((s) => s.readerMargin);
+  const align = useSettingsStore((s) => s.readerAlign);
+  const setTheme = useSettingsStore((s) => s.setReaderTheme);
+  const setMargin = useSettingsStore((s) => s.setReaderMargin);
+  const setAlign = useSettingsStore((s) => s.setReaderAlign);
 
   return (
     <View style={styles.container}>
@@ -54,10 +63,72 @@ export function ReadingAppearance() {
         </View>
       </View>
 
-      <View style={styles.preview}>
-        <Text variant="reading" style={readingStyle}>
+      <ChipRow
+        label={t.settings.readerTheme}
+        options={THEMES}
+        selected={theme}
+        getLabel={(item) => t.settings.themes[item]}
+        onSelect={setTheme}
+      />
+      <ChipRow
+        label={t.settings.margins}
+        options={READER_MARGIN_ORDER}
+        selected={margin}
+        getLabel={(item) => t.settings.marginSizes[item]}
+        onSelect={setMargin}
+      />
+      <ChipRow
+        label={t.settings.align}
+        options={READER_ALIGN_ORDER}
+        selected={align}
+        getLabel={(item) => t.settings.aligns[item]}
+        onSelect={setAlign}
+      />
+
+      <View
+        style={[
+          styles.preview,
+          { backgroundColor: look.palette.background, paddingHorizontal: look.paddingHorizontal },
+        ]}>
+        <Text
+          variant="reading"
+          style={[readingStyle, { color: look.palette.text, textAlign: look.textAlign }]}>
           {t.settings.preview}
         </Text>
+      </View>
+    </View>
+  );
+}
+
+const THEMES: readonly ReaderPaletteId[] = ['zone', 'sepia', 'night'];
+
+interface ChipRowProps<T extends string> {
+  label: string;
+  options: readonly T[];
+  selected: T;
+  getLabel: (option: T) => string;
+  onSelect: (option: T) => void;
+}
+
+function ChipRow<T extends string>({
+  label,
+  options,
+  selected,
+  getLabel,
+  onSelect,
+}: ChipRowProps<T>) {
+  return (
+    <View style={styles.section}>
+      <Text variant="sectionLabel">{label}</Text>
+      <View style={styles.chips}>
+        {options.map((option) => (
+          <Chip
+            key={option}
+            label={getLabel(option)}
+            selected={option === selected}
+            onPress={() => onSelect(option)}
+          />
+        ))}
       </View>
     </View>
   );

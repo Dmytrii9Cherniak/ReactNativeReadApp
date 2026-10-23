@@ -1,4 +1,5 @@
 export { Badge, type BadgeTone } from './badge';
+export { BottomSheet } from './bottom-sheet';
 export { Button, type ButtonProps } from './button';
 export { Card } from './card';
 export { CenteredMessage } from './centered-message';
@@ -10,6 +11,7 @@ export { Icon, type IconName } from './icon';
 export { IconButton } from './icon-button';
 export { Loader } from './loader';
 export { NotificationHost } from './notification-host';
+export { OfflineBanner } from './offline-banner';
 export { PasswordField } from './password-field';
 export { Screen } from './screen';
 export { Text, type TextProps } from './text';

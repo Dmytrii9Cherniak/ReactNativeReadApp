@@ -71,12 +71,13 @@ MySubmission { id; kind: 'book' | 'story'; title; status: 'pending' | 'published
 
 ## Досвід, ранги, угруповання
 
-| Метод | Шлях              | Тіло            | Відповідь        |
-| ----- | ----------------- | --------------- | ---------------- |
-| GET   | `/me/progress` 🔒 | —               | `Progress`       |
-| POST  | `/me/ad-views` 🔒 | —               | `AdReward`       |
-| GET   | `/factions`       | —               | `FactionStats[]` |
-| PUT   | `/me/faction` 🔒  | `{ factionId }` | `Progress`       |
+| Метод | Шлях               | Тіло            | Відповідь         |
+| ----- | ------------------ | --------------- | ----------------- |
+| GET   | `/me/progress` 🔒  | —               | `Progress`        |
+| POST  | `/me/ad-views` 🔒  | —               | `AdReward`        |
+| GET   | `/factions`        | —               | `FactionStats[]`  |
+| GET   | `/factions/rating` | —               | `FactionRating[]` |
+| PUT   | `/me/faction` 🔒   | `{ factionId }` | `Progress`        |
 
 ```ts
 FactionId = 'loners' | 'bandits' | 'military' | 'duty' | 'freedom' | 'scientists' | 'mercenaries'
@@ -85,6 +86,7 @@ Progress { xp: number; factionId; factionChangedAt: string | null; storiesCount;
            today: { story: number; fires: number; ads: number; adXp: number } }
 AdReward     { xp: number; progress: Progress }
 FactionStats { id: FactionId; members: number }
+FactionRating { id: FactionId; weekXp: number }   // XP учасників за поточний тиждень (пн–нд), за спаданням
 ```
 
 Правила (рахує лише сервер, ліміти скидаються щодоби):
@@ -191,3 +193,9 @@ audit_log        id, admin_id → users, action, target, details, created_at
 
 - `readCount` = кількість `user_books` з `shelf = 'read'`; `Story.fires` = кількість `story_fires`.
 - Рейтинг угруповань (тиждень) — сума XP учасників; кількість учасників — `count(users) group by faction_id`.
+
+## Лише на пристрої (бекенд не потрібен)
+
+- **Завантажені книги** — текст зберігається локально (`download:<bookId>`), читається без мережі.
+- **Закладки, статистика читання, досягнення, тема/поля/вирівнювання рідера** — локальні сховища (zustand persist). Пізніше можна синхронізувати: `GET/PUT /me/bookmarks`, `POST /me/reading-sessions`.
+- **Поділитися** — системне меню / буфер обміну з посиланням `stalkerbooks://…`.

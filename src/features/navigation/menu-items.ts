@@ -19,6 +19,7 @@ export const MENU_GROUPS: readonly (readonly MenuItem[])[] = [
   [
     { route: 'index', icon: 'grid', label: (t) => t.menu.library },
     { route: 'my-books', icon: 'bookmark', label: (t) => t.menu.myBooks, permission: 'shelves' },
+    { route: 'downloads', icon: 'download', label: (t) => t.menu.downloads },
     { route: 'campfire', icon: 'sunrise', label: (t) => t.menu.campfire },
     { route: 'profile', icon: 'award', label: (t) => t.menu.profile, permission: 'profile' },
     { route: 'upload', icon: 'upload', label: (t) => t.menu.upload, permission: 'books.upload' },

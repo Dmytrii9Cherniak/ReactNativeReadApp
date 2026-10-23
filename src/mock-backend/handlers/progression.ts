@@ -3,7 +3,7 @@ import { ApiError } from '@/shared/lib/api-error';
 
 import { toProgress } from '../mappers';
 import { respond } from '../respond';
-import { DAY_MS, XP_RULES, todayOf } from '../rules';
+import { DAY_MS, XP_RULES, awardXp, todayOf, weekKey } from '../rules';
 import { requireUser } from '../session';
 
 const randomInt = (min: number, max: number) => min + Math.floor(Math.random() * (max - min + 1));
@@ -25,7 +25,7 @@ export const progressionHandlers: ProgressionApi = {
 
       today.ads += 1;
       today.adXp += xp;
-      user.xp += xp;
+      awardXp(db, user, xp);
 
       return { xp, progress: toProgress(user) };
     }),
@@ -38,6 +38,16 @@ export const progressionHandlers: ProgressionApi = {
           db.factionBaseMembers[id] + db.users.filter((user) => user.factionId === id).length,
       })),
     ),
+
+  getWeeklyRating: () =>
+    respond((db) => {
+      // Новий тиждень почався, а XP ще ніхто не набрав — рейтинг з нулів
+      const isCurrent = db.factionWeek.week === weekKey();
+
+      return (Object.keys(db.factionBaseMembers) as FactionId[])
+        .map((id) => ({ id, weekXp: isCurrent ? Math.round(db.factionWeek.xp[id] ?? 0) : 0 }))
+        .sort((a, b) => b.weekXp - a.weekXp);
+    }),
 
   joinFaction: (factionId) =>
     respond((db) => {
