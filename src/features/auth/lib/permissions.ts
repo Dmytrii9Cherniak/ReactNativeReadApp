@@ -7,8 +7,8 @@ export type Permission =
   | 'campfire.tell'
   | 'campfire.fire'
   | 'books.upload'
-  | 'moderation'
-  | 'users.manage';
+  | 'notifications'
+  | 'admin';
 
 const USER_PERMISSIONS: readonly Permission[] = [
   'shelves',
@@ -16,6 +16,7 @@ const USER_PERMISSIONS: readonly Permission[] = [
   'campfire.tell',
   'campfire.fire',
   'books.upload',
+  'notifications',
 ];
 
 /**
@@ -24,11 +25,10 @@ const USER_PERMISSIONS: readonly Permission[] = [
  */
 export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
   user: USER_PERMISSIONS,
-  moderator: [...USER_PERMISSIONS, 'moderation'],
-  admin: [...USER_PERMISSIONS, 'moderation', 'users.manage'],
+  admin: [...USER_PERMISSIONS, 'admin'],
 };
 
-export const ROLES: readonly Role[] = ['user', 'moderator', 'admin'];
+export const ROLES: readonly Role[] = ['user', 'admin'];
 
 export function can(user: User | null, permission: Permission): boolean {
   // Невідома роль (старі збережені дані) — жодних дозволів

@@ -1,5 +1,7 @@
+import type { AuditAction, ContentStatus } from '@/features/admin';
 import type { Role } from '@/features/auth';
 import type { CatalogBook } from '@/features/catalog';
+import type { NotificationKind, NotificationParams } from '@/features/notifications';
 import type { FactionId } from '@/features/progression';
 import type { Shelf } from '@/features/shelves';
 import { kvStorage } from '@/shared/lib/kv-storage';
@@ -8,7 +10,8 @@ import { createSeed } from './fixtures/seed';
 
 /**
  * «База даних» тестового сервера. Таблиці — ті самі, що будуть у справжній БД
- * (див. docs/API.md): users, books, shelves, stories, story_fires, pending_signups.
+ * (див. docs/API.md): users, books, user_books, stories, story_fires, pending_signups,
+ * notifications, audit_log.
  */
 
 export interface DailyCounters {
@@ -37,14 +40,17 @@ export interface UserRecord {
   nonStopEarned: number;
   lastStoryDay: string | null;
   daily: DailyCounters;
+  blocked: boolean;
+  blockReason: string | null;
 }
 
-export type ContentStatus = 'pending' | 'published';
+export type { ContentStatus };
 
 export interface BookRecord extends CatalogBook {
   status: ContentStatus;
   submittedBy: string | null;
   submittedAt: string;
+  rejectReason: string | null;
 }
 
 export interface ShelfRecord {
@@ -61,10 +67,29 @@ export interface StoryRecord {
   body: string;
   createdAt: string;
   status: ContentStatus;
-  /** Хто запалив вогник (по одному з акаунта) */
-  firedBy: string[];
+  rejectReason: string | null;
+  /** Вогники: по одному з акаунта (таблиця story_fires) */
+  fires: { userId: string; at: string }[];
   /** Вогники «з минулого» для тестових історій — щоб цифри були як у макеті */
   baseFires: number;
+}
+
+export interface NotificationRecord {
+  id: string;
+  userId: string;
+  kind: NotificationKind;
+  params: NotificationParams;
+  createdAt: string;
+  read: boolean;
+}
+
+export interface AuditRecord {
+  id: string;
+  adminId: string;
+  action: AuditAction;
+  target: string;
+  details: string | null;
+  createdAt: string;
 }
 
 export interface PendingSignup {
@@ -80,12 +105,14 @@ export interface Db {
   shelves: ShelfRecord[];
   stories: StoryRecord[];
   pendingSignups: PendingSignup[];
+  notifications: NotificationRecord[];
+  audit: AuditRecord[];
   /** Учасники угруповань поза тестовою базою — щоб цифри були «живими» */
   factionBaseMembers: Record<FactionId, number>;
 }
 
 /** Змінюється при зміні структури — стара збережена база тоді просто перестворюється. */
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORAGE_KEY = 'mock-backend-db';
 
 let db: Db | null = null;

@@ -2,17 +2,22 @@ import type { CampfireApi } from '@/features/campfire';
 import { ApiError } from '@/shared/lib/api-error';
 
 import { createId, type Db, type StoryRecord, type UserRecord } from '../db';
+import { emit } from '../events';
 import { toStory } from '../mappers';
 import { respond } from '../respond';
 import { XP_RULES, dayKey, isYesterday, todayOf } from '../rules';
-import { STAFF_ROLES, findCurrentUser, requireUser } from '../session';
+import { findCurrentUser, isAdmin, requireUser } from '../session';
 
-/** Опубліковані бачать усі; на перевірці — лише автор і модератори. */
+/**
+ * Опубліковані бачать усі; адмін — усі; автор — свої на перевірці й відхилені
+ * (щоб бачити статус). Приховані адміном — лише адмін.
+ */
 function isVisible(story: StoryRecord, viewer: UserRecord | null): boolean {
-  return (
-    story.status === 'published' ||
-    (viewer !== null && (viewer.id === story.authorId || STAFF_ROLES.includes(viewer.role)))
-  );
+  if (story.status === 'published' || isAdmin(viewer)) {
+    return true;
+  }
+
+  return viewer?.id === story.authorId && story.status !== 'hidden';
 }
 
 function findVisible(db: Db, id: string, viewer: UserRecord | null): StoryRecord {
@@ -73,9 +78,10 @@ export const campfireHandlers: CampfireApi = {
         title: title.trim(),
         body: body.trim(),
         createdAt: new Date().toISOString(),
-        // Історії, як і книги, проходять модерацію; модератори й адміни публікують одразу
-        status: STAFF_ROLES.includes(user.role) ? 'published' : 'pending',
-        firedBy: [],
+        // Історії, як і книги, перевіряє адмін; власні історії адміна публікуються одразу
+        status: isAdmin(user) ? 'published' : 'pending',
+        rejectReason: null,
+        fires: [],
         baseFires: 0,
       };
 
@@ -84,6 +90,10 @@ export const campfireHandlers: CampfireApi = {
       user.xp += XP_RULES.story;
       user.storiesCount += 1;
       trackNonStop(user);
+
+      if (story.status === 'pending') {
+        emit('admin');
+      }
 
       return toStory(db, story, user);
     }),
@@ -97,11 +107,15 @@ export const campfireHandlers: CampfireApi = {
         throw new ApiError('fire_own_story');
       }
 
-      if (story.firedBy.includes(user.id)) {
+      if (story.status !== 'published') {
+        throw new ApiError('not_found');
+      }
+
+      if (story.fires.some((fire) => fire.userId === user.id)) {
         throw new ApiError('already_fired');
       }
 
-      story.firedBy.push(user.id);
+      story.fires.push({ userId: user.id, at: new Date().toISOString() });
 
       const author = db.users.find((item) => item.id === story.authorId);
 

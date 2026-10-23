@@ -21,7 +21,6 @@ export const DEMO_VERIFICATION_CODE = '123456';
 /** Демо-акаунти — по одному на кожну роль. Показуються на екрані входу в демо-режимі. */
 export const DEMO_ACCOUNTS: { email: string; password: string; role: Role }[] = [
   { email: 'admin@stalker.books', password: 'admin123', role: 'admin' },
-  { email: 'moder@stalker.books', password: 'moder123', role: 'moderator' },
   { email: 'user@stalker.books', password: 'user123', role: 'user' },
 ];
 
@@ -55,10 +54,10 @@ export const FIXTURE_USERS: FixtureUser[] = [
   },
   {
     id: 'u-moder',
-    email: DEMO_ACCOUNTS[1].email,
-    password: DEMO_ACCOUNTS[1].password,
+    email: 'moder@example.com',
+    password: 'u-moder-password',
     nickname: 'Модер_Кордону',
-    role: 'moderator',
+    role: 'user',
     xp: 950,
     factionId: 'freedom',
     storiesCount: 88,
@@ -69,8 +68,8 @@ export const FIXTURE_USERS: FixtureUser[] = [
   {
     // Профіль з дизайн-документа (розділ 9)
     id: 'u-user',
-    email: DEMO_ACCOUNTS[2].email,
-    password: DEMO_ACCOUNTS[2].password,
+    email: DEMO_ACCOUNTS[1].email,
+    password: DEMO_ACCOUNTS[1].password,
     nickname: 'Сірий_84',
     role: 'user',
     xp: 150,

@@ -32,11 +32,11 @@ export function StoryCard({ story, onOpen }: StoryCardProps) {
       </Text>
       <View style={styles.footer}>
         <FireButton count={story.fires} isLit={story.firedByMe} />
-        {story.status === 'pending' ? (
+        {story.status === 'published' ? null : (
           <Text variant="caption" style={styles.pending}>
-            {t.campfire.pending}
+            {t.admin.status[story.status]}
           </Text>
-        ) : null}
+        )}
         <Text variant="caption" style={styles.read}>
           {t.campfire.read}
         </Text>

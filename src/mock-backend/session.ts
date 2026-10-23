@@ -1,4 +1,3 @@
-import type { Role } from '@/features/auth';
 import { ApiError } from '@/shared/lib/api-error';
 import { apiSession } from '@/shared/lib/api-session';
 
@@ -18,28 +17,33 @@ export function findCurrentUser(db: Db): UserRecord | null {
   }
 
   const userId = token.slice(TOKEN_PREFIX.length);
+  const user = db.users.find((item) => item.id === userId) ?? null;
 
-  return db.users.find((user) => user.id === userId) ?? null;
+  // Заблокований — наче без сесії: кожен запит відхиляється
+  return user?.blocked ? null : user;
 }
 
 export function requireUser(db: Db): UserRecord {
+  const token = apiSession.getToken();
   const user = findCurrentUser(db);
 
   if (!user) {
-    throw new ApiError('unauthorized');
+    const isBlocked = db.users.some((item) => item.blocked && token === createToken(item.id));
+
+    throw new ApiError(isBlocked ? 'account_blocked' : 'unauthorized');
   }
 
   return user;
 }
 
-export function requireRole(db: Db, roles: readonly Role[]): UserRecord {
+export function requireAdmin(db: Db): UserRecord {
   const user = requireUser(db);
 
-  if (!roles.includes(user.role)) {
+  if (user.role !== 'admin') {
     throw new ApiError('forbidden');
   }
 
   return user;
 }
 
-export const STAFF_ROLES: readonly Role[] = ['moderator', 'admin'];
+export const isAdmin = (user: UserRecord | null) => user?.role === 'admin';

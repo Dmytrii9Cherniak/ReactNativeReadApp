@@ -72,11 +72,11 @@ export default function MainLayout() {
       <Drawer.Protected guard={can(user, 'books.upload')}>
         <Drawer.Screen name="upload" options={{ title: t.menu.upload }} />
       </Drawer.Protected>
-      <Drawer.Protected guard={can(user, 'moderation')}>
-        <Drawer.Screen name="moderation" options={{ title: t.menu.moderation }} />
+      <Drawer.Protected guard={can(user, 'notifications')}>
+        <Drawer.Screen name="notifications" options={{ title: t.notifications.title }} />
       </Drawer.Protected>
-      <Drawer.Protected guard={can(user, 'users.manage')}>
-        <Drawer.Screen name="admin" options={{ title: t.menu.admin }} />
+      <Drawer.Protected guard={can(user, 'admin')}>
+        <Drawer.Screen name="admin" options={{ title: t.admin.title }} />
       </Drawer.Protected>
     </Drawer>
   );

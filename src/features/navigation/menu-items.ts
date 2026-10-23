@@ -23,12 +23,12 @@ export const MENU_GROUPS: readonly (readonly MenuItem[])[] = [
     { route: 'profile', icon: 'award', label: (t) => t.menu.profile, permission: 'profile' },
     { route: 'upload', icon: 'upload', label: (t) => t.menu.upload, permission: 'books.upload' },
     {
-      route: 'moderation',
-      icon: 'star',
-      label: (t) => t.menu.moderation,
-      permission: 'moderation',
+      route: 'notifications',
+      icon: 'bell',
+      label: (t) => t.menu.notifications,
+      permission: 'notifications',
     },
-    { route: 'admin', icon: 'users', label: (t) => t.menu.admin, permission: 'users.manage' },
+    { route: 'admin', icon: 'shield', label: (t) => t.menu.admin, permission: 'admin' },
   ],
   [
     { route: 'settings', icon: 'settings', label: (t) => t.menu.settings },

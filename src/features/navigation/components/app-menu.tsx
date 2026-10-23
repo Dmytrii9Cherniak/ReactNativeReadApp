@@ -1,7 +1,9 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { usePendingCount } from '@/features/admin';
 import { can, useAuthStore } from '@/features/auth';
+import { useUnreadCount } from '@/features/notifications';
 import { useT } from '@/shared/i18n';
 import { confirm, notify } from '@/shared/lib/dialogs';
 import { borderWidth, colors, radius, spacing, type ColorToken } from '@/shared/theme';
@@ -19,6 +21,11 @@ export function AppMenu({ state, navigation }: DrawerContentComponentProps) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const activeRoute = state.routes[state.index].name;
+  // Лічильники біля пунктів: нові сповіщення й заявки на перевірку (оновлюються наживо)
+  const badges: Record<string, number> = {
+    notifications: useUnreadCount(),
+    admin: usePendingCount(),
+  };
 
   // На телефоні меню закривається; на планшеті (постійна панель) виклик нічого не робить
   const close = () => navigation.closeDrawer();
@@ -62,6 +69,7 @@ export function AppMenu({ state, navigation }: DrawerContentComponentProps) {
               key={item.route}
               icon={item.icon}
               label={item.label(t)}
+              badge={badges[item.route]}
               isActive={item.route === activeRoute}
               onPress={() => open(item)}
             />
@@ -92,9 +100,10 @@ interface MenuRowProps {
   onPress: () => void;
   isActive?: boolean;
   color?: ColorToken;
+  badge?: number;
 }
 
-function MenuRow({ icon, label, onPress, isActive = false, color }: MenuRowProps) {
+function MenuRow({ icon, label, onPress, isActive = false, color, badge = 0 }: MenuRowProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -109,6 +118,13 @@ function MenuRow({ icon, label, onPress, isActive = false, color }: MenuRowProps
       <Text variant="label" color={color ?? (isActive ? 'primaryLight' : 'textSecondary')}>
         {label}
       </Text>
+      {badge > 0 ? (
+        <View style={styles.badge}>
+          <Text variant="caption" color="onPrimary" style={styles.badgeText}>
+            {badge > 99 ? '99+' : badge}
+          </Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 }
@@ -130,5 +146,14 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   activeItem: { backgroundColor: colors.input },
+  badge: {
+    minWidth: 20,
+    marginLeft: 'auto',
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.pill,
+    backgroundColor: colors.gold,
+  },
+  badgeText: { fontWeight: '700' },
   pressed: { opacity: 0.8 },
 });

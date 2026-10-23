@@ -10,7 +10,7 @@ import { adminHandlers } from './handlers/admin';
 import { authHandlers } from './handlers/auth';
 import { campfireHandlers } from './handlers/campfire';
 import { catalogHandlers } from './handlers/catalog';
-import { moderationHandlers } from './handlers/moderation';
+import { notificationsHandlers } from './handlers/notifications';
 import { progressionHandlers } from './handlers/progression';
 import { shelvesHandlers } from './handlers/shelves';
 import { uploadHandlers } from './handlers/upload';
@@ -20,7 +20,7 @@ export const mockServer = {
   auth: authHandlers,
   campfire: campfireHandlers,
   catalog: catalogHandlers,
-  moderation: moderationHandlers,
+  notifications: notificationsHandlers,
   progression: progressionHandlers,
   shelves: shelvesHandlers,
   upload: uploadHandlers,

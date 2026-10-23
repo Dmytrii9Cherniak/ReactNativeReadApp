@@ -15,7 +15,8 @@ export type ApiErrorCode =
   | 'faction_cooldown'
   | 'fire_own_story'
   | 'already_fired'
-  | 'cannot_change_own_role';
+  | 'cannot_modify_self'
+  | 'account_blocked';
 
 export class ApiError extends Error {
   constructor(readonly code: ApiErrorCode) {

@@ -6,7 +6,9 @@ import { useEffect } from 'react';
 import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { useAdminStore } from '@/features/admin';
 import { can, useAuthStore } from '@/features/auth';
+import { useNotificationsStore } from '@/features/notifications';
 import { useProgressionStore } from '@/features/progression';
 import { READING_FONT_ASSETS, useRestoreBrightness } from '@/features/settings';
 import { useShelvesStore } from '@/features/shelves';
@@ -34,6 +36,7 @@ export default function RootLayout() {
 
   useRestoreBrightness();
   useUserData(user?.id ?? null);
+  useLiveUpdates(user?.id ?? null, can(user, 'admin'));
 
   useEffect(() => {
     if (isReady) {
@@ -86,6 +89,17 @@ export default function RootLayout() {
           <Stack.Protected guard={can(user, 'profile')}>
             <Stack.Screen name="faction" options={{ title: t.progression.factionTitle }} />
           </Stack.Protected>
+
+          {/* Адмінка: лише роль admin (сервер перевіряє те саме) */}
+          <Stack.Protected guard={can(user, 'admin')}>
+            <Stack.Screen name="admin/books" options={{ title: t.admin.sections.books }} />
+            <Stack.Screen name="admin/book/[id]" options={{ title: '' }} />
+            <Stack.Screen name="admin/stories" options={{ title: t.admin.sections.stories }} />
+            <Stack.Screen name="admin/users" options={{ title: t.admin.sections.users }} />
+            <Stack.Screen name="admin/user/[id]" options={{ title: '' }} />
+            <Stack.Screen name="admin/log" options={{ title: t.admin.sections.log }} />
+            <Stack.Screen name="admin/broadcast" options={{ title: t.admin.sections.broadcast }} />
+          </Stack.Protected>
         </Stack>
         <NotificationHost />
       </ThemeProvider>
@@ -113,6 +127,32 @@ function useUserData(userId: string | null) {
     loadProgress().catch(() => undefined);
     loadShelves().catch(() => undefined);
   }, [userId, loadProgress, loadShelves, resetProgress, resetShelves]);
+}
+
+/**
+ * Живі оновлення: нові сповіщення — для всіх, хто увійшов; черга перевірки — для адміна.
+ * З бекендом тут буде одне SSE / WebSocket-з'єднання; екрани не зміняться.
+ */
+function useLiveUpdates(userId: string | null, isAdmin: boolean) {
+  useEffect(() => {
+    if (!userId) {
+      useNotificationsStore.getState().reset();
+
+      return undefined;
+    }
+
+    return useNotificationsStore.getState().start();
+  }, [userId]);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      useAdminStore.getState().reset();
+
+      return undefined;
+    }
+
+    return useAdminStore.getState().start();
+  }, [isAdmin]);
 }
 
 const styles = StyleSheet.create({

@@ -21,6 +21,7 @@ export const toBook = ({
   status: _s,
   submittedBy: _b,
   submittedAt: _a,
+  rejectReason: _r,
   ...book
 }: BookRecord): CatalogBook => book;
 
@@ -52,8 +53,8 @@ export function toStory(db: Db, story: StoryRecord, viewer: UserRecord | null): 
     body: story.body,
     createdAt: story.createdAt,
     status: story.status,
-    fires: story.baseFires + story.firedBy.length,
-    firedByMe: viewer ? story.firedBy.includes(viewer.id) : false,
+    fires: story.baseFires + story.fires.length,
+    firedByMe: viewer ? story.fires.some((fire) => fire.userId === viewer.id) : false,
     author: {
       id: story.authorId,
       nickname: author?.nickname ?? '—',

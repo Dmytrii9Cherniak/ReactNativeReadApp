@@ -9,8 +9,11 @@ export interface StoryAuthor {
   hasNonStop: boolean;
 }
 
-/** Статус: історії звичайних користувачів спершу проходять перевірку. */
-export type StoryStatus = 'pending' | 'published';
+/**
+ * Статус: історії користувачів спершу перевіряє адмін. Автор бачить свої на перевірці
+ * й відхилені, адмін — також приховані.
+ */
+export type StoryStatus = 'pending' | 'published' | 'hidden' | 'rejected';
 
 export interface Story {
   id: string;

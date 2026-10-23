@@ -72,8 +72,8 @@ export const useAuthStore = create<AuthState>()(
               set({ user: await authApi.me() });
             }
           } catch (error) {
-            // Токен більше не дійсний — виходимо; без мережі лишаємо збережені дані
-            if (isApiError(error, 'unauthorized')) {
+            // Токен недійсний або акаунт заблоковано — виходимо; без мережі лишаємо збережені дані
+            if (isApiError(error, 'unauthorized') || isApiError(error, 'account_blocked')) {
               endSession();
             }
           } finally {

@@ -4,6 +4,7 @@ export { NonStopBadge } from './components/non-stop-badge';
 export { RankLabel } from './components/rank-label';
 export { FactionScreen } from './faction-screen';
 export { useWatchAd } from './hooks/use-watch-ad';
+export { getFaction } from './lib/factions';
 export { getRank, RANK_THRESHOLDS, type Rank } from './lib/ranks';
 export { ProfileScreen } from './profile-screen';
 export { useProgress, useProgressionStore } from './progression.store';

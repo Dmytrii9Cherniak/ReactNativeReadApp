@@ -1,5 +1,5 @@
-/** Ролі: user — читач/автор історій; moderator — ще й перевіряє надіслане; admin — ще й керує ролями. */
-export type Role = 'admin' | 'moderator' | 'user';
+/** Ролі: user — читач і автор; admin — ще й перевіряє надіслане та керує застосунком. */
+export type Role = 'admin' | 'user';
 
 /** Поточний користувач — так його повертає бекенд (GET /auth/me). */
 export interface User {

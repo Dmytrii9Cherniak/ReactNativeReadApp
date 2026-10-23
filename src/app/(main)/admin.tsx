@@ -1,3 +1,3 @@
-import { AdminScreen } from '@/features/admin';
+import { AdminHomeScreen } from '@/features/admin';
 
-export default AdminScreen;
+export default AdminHomeScreen;

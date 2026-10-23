@@ -19,6 +19,10 @@ export const authHandlers: AuthApi = {
         throw new ApiError('invalid_credentials');
       }
 
+      if (user.blocked) {
+        throw new ApiError('account_blocked');
+      }
+
       return { token: createToken(user.id), user: toUser(user) };
     }),
 
@@ -60,6 +64,8 @@ export const authHandlers: AuthApi = {
         nonStopEarned: 0,
         lastStoryDay: null,
         daily: emptyDaily(),
+        blocked: false,
+        blockReason: null,
       };
 
       db.users.push(user);

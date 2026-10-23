@@ -4,7 +4,7 @@
 
 - Формат: JSON. Захищені запити — `Authorization: Bearer <token>` (🔒). Роль — у дужках.
 - Помилки: `{ "error": { "code": "<ApiErrorCode>", "message": "…" } }`. Коди — `src/shared/lib/api-error.ts`:
-  `unauthorized` (401), `forbidden` (403), `not_found` (404), `validation` (422), `invalid_credentials`, `email_taken`, `invalid_code`, `story_limit`, `ad_limit`, `faction_cooldown`, `fire_own_story`, `already_fired`, `cannot_change_own_role` (усі — 409/422 на розсуд бекенду, клієнт дивиться лише на `code`).
+  `unauthorized` (401), `forbidden` (403), `not_found` (404), `validation` (422), `invalid_credentials`, `email_taken`, `invalid_code`, `story_limit`, `ad_limit`, `faction_cooldown`, `fire_own_story`, `already_fired`, `cannot_modify_self`, `account_blocked` (усі — 409/422 на розсуд бекенду, клієнт дивиться лише на `code`).
 
 ## Авторизація
 
@@ -18,7 +18,7 @@
 | POST  | `/auth/logout` 🔒   | —                               | `204`                 |
 
 ```ts
-User    { id; nickname; email; role: 'admin' | 'moderator' | 'user'; createdAt }
+User    { id; nickname; email; role: 'admin' | 'user'; createdAt }
 Session { token: string; user: User }
 ```
 
@@ -45,18 +45,13 @@ ShelfEntry  { book: CatalogBook; shelf: 'want' | 'reading' | 'read'; updatedAt: 
 
 Каталог і текст — лише опубліковані книги, доступні й гостям.
 
-## Завантаження й модерація
+## Завантаження книги
 
-| Метод | Шлях                               | Тіло / роль                                                     | Відповідь          |
-| ----- | ---------------------------------- | --------------------------------------------------------------- | ------------------ |
-| POST  | `/books/submissions` 🔒            | multipart: `title, author, description, language, file, cover?` | `202`              |
-| GET   | `/moderation/:kind` 🔒             | moderator, admin · `kind`: `books` \| `stories`                 | `ModerationItem[]` |
-| POST  | `/moderation/:kind/:id/approve` 🔒 | moderator, admin                                                | `204`              |
-| POST  | `/moderation/:kind/:id/reject` 🔒  | moderator, admin                                                | `204`              |
+| Метод | Шлях                    | Тіло                                                            | Відповідь |
+| ----- | ----------------------- | --------------------------------------------------------------- | --------- |
+| POST  | `/books/submissions` 🔒 | multipart: `title, author, description, language, file, cover?` | `202`     |
 
-```ts
-ModerationItem { id; kind: 'book' | 'story'; title; author; submittedBy: string; submittedAt }
-```
+Книга отримує статус `pending` і з'являється в черзі адмінки; автор дізнається результат зі сповіщення.
 
 ## Досвід, ранги, угруповання
 
@@ -98,20 +93,64 @@ FactionStats { id: FactionId; members: number }
 | POST  | `/stories/:id/fires` 🔒 | —                 | `Story`   |
 
 ```ts
-Story { id; title; body; createdAt; status: 'pending' | 'published'; fires: number; firedByMe: boolean;
+Story { id; title; body; createdAt; status: 'pending' | 'published' | 'hidden' | 'rejected'; fires: number; firedByMe: boolean;
         author: { id; nickname; xp: number; factionId: FactionId; hasNonStop: boolean } }
 ```
 
-Стрічка: опубліковані + власні на перевірці (модератор бачить усі). Історії `user` спершу йдуть на модерацію; moderator / admin — публікуються одразу.
+Стрічка: опубліковані + власні на перевірці й відхилені (адмін бачить усі). Історії `user` спершу перевіряє адмін; історії адміна публікуються одразу.
 
-## Адміністрування
+## Сповіщення
 
-| Метод | Шлях                  | Тіло       | Відповідь |
-| ----- | --------------------- | ---------- | --------- |
-| GET   | `/admin/users` 🔒     | admin      | `User[]`  |
-| PATCH | `/admin/users/:id` 🔒 | `{ role }` | `User`    |
+| Метод | Шлях                            | Відповідь                        |
+| ----- | ------------------------------- | -------------------------------- |
+| GET   | `/me/notifications` 🔒          | `AppNotification[]`              |
+| POST  | `/me/notifications/read-all` 🔒 | `204`                            |
+| GET   | `/me/events` 🔒 (SSE)           | подія `notifications` — «є нові» |
 
-Власну роль змінити не можна → `cannot_change_own_role`.
+```ts
+AppNotification { id; kind; params: { title?; text?; amount?; role? }; createdAt; read: boolean }
+kind = 'book_approved' | 'book_rejected' | 'story_approved' | 'story_rejected'
+     | 'xp_adjusted' | 'role_changed' | 'announcement'
+```
+
+Сервер надсилає лише вид і параметри — текст складає застосунок мовою користувача.
+
+## Адмінка (роль admin)
+
+Усі запити — 🔒 і лише `role = 'admin'` (інакше `forbidden`). Кожна дія пишеться в журнал (`audit_log`).
+
+| Метод  | Шлях                                                            | Тіло                    | Відповідь                         |
+| ------ | --------------------------------------------------------------- | ----------------------- | --------------------------------- |
+| GET    | `/admin/stats`                                                  | —                       | `AdminStats`                      |
+| GET    | `/admin/books?status=&search=`                                  | —                       | `AdminBook[]`                     |
+| GET    | `/admin/books/:id`                                              | —                       | `AdminBookDetails`                |
+| PATCH  | `/admin/books/:id`                                              | `BookPatch`             | `AdminBook`                       |
+| POST   | `/admin/books/:id/approve`                                      | —                       | `AdminBook`                       |
+| POST   | `/admin/books/:id/reject`                                       | `{ reason }`            | `AdminBook`                       |
+| POST   | `/admin/books/:id/hide` · `/restore`                            | —                       | `AdminBook`                       |
+| DELETE | `/admin/books/:id`                                              | —                       | `204`                             |
+| GET    | `/admin/stories?status=&search=`                                | —                       | `AdminStory[]`                    |
+| POST   | `/admin/stories/:id/approve` · `/reject` · `/hide` · `/restore` | `{ reason }` для reject | `AdminStory`                      |
+| DELETE | `/admin/stories/:id`                                            | —                       | `204`                             |
+| GET    | `/admin/users?filter=all\|admins\|blocked&search=`              | —                       | `AdminUser[]`                     |
+| GET    | `/admin/users/:id`                                              | —                       | `AdminUser`                       |
+| PATCH  | `/admin/users/:id`                                              | `{ role }`              | `AdminUser`                       |
+| POST   | `/admin/users/:id/block` · `/unblock`                           | `{ reason }` для block  | `AdminUser`                       |
+| POST   | `/admin/users/:id/xp`                                           | `{ amount, reason }`    | `AdminUser`                       |
+| POST   | `/admin/broadcasts`                                             | `{ title, message }`    | `204`                             |
+| GET    | `/admin/audit?group=books\|stories\|users\|broadcast`           | —                       | `AuditEntry[]`                    |
+| GET    | `/admin/events` (SSE)                                           | —                       | подія `admin` — «черга змінилась» |
+
+Типи — `src/features/admin/types.ts`. Правила:
+
+- Стан книги й історії: `pending` → `published` (схвалено) / `rejected` (з причиною); опубліковане можна `hidden` ↔ `published`. Видалення — назавжди.
+- Схвалення / відхилення / зміна ролі / зміна XP — сповіщення користувачу; оголошення — сповіщення всім незаблокованим.
+- Себе змінити (роль, блокування, XP) не можна → `cannot_modify_self`.
+- Заблокований не може увійти й робити запити → `account_blocked`; бекенд при блокуванні відкликає його сесії.
+- XP не стає від'ємним: зняти можна не більше, ніж є.
+- Власні історії адміна публікуються одразу.
+
+**Живі оновлення.** Усі дії — звичайні REST-запити. Сервер лише повідомляє «щось змінилось» (SSE або WebSocket), а клієнт перечитує потрібний список. На старті цілком досить і опитування раз на 30 с.
 
 ## База даних (пропозиція)
 
@@ -120,14 +159,18 @@ Story { id; title; body; createdAt; status: 'pending' | 'published'; fires: numb
 ```
 users            id, email (unique), nickname, password_hash, role, created_at,
                  xp, faction_id, faction_changed_at, stories_count, fires_received,
-                 non_stop_streak, non_stop_earned, last_story_day
+                 non_stop_streak, non_stop_earned, last_story_day,
+                 is_blocked, block_reason
 user_daily       user_id → users, day, story, fires, ads, ad_xp          PK (user_id, day)
 pending_signups  email (PK), nickname, password_hash, code_hash, expires_at
 books            id, title, author, description, language, format, file_key, cover_key,
-                 status (pending | published), submitted_by → users, submitted_at
+                 status (pending | published | hidden | rejected), reject_reason,
+                 submitted_by → users, submitted_at
 user_books       user_id → users, book_id → books, shelf, updated_at   PK (user_id, book_id)
-stories          id, author_id → users, title, body, status, created_at
+stories          id, author_id → users, title, body, status, reject_reason, created_at
 story_fires      user_id → users, story_id → stories, created_at        PK (user_id, story_id)
+notifications    id, user_id → users, kind, params (jsonb), created_at, read_at
+audit_log        id, admin_id → users, action, target, details, created_at
 ```
 
 - `readCount` = кількість `user_books` з `shelf = 'read'`; `Story.fires` = кількість `story_fires`.

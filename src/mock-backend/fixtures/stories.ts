@@ -5,7 +5,7 @@ export interface FixtureStory {
   body: string;
   daysAgo: number;
   baseFires: number;
-  status: 'pending' | 'published';
+  status: 'pending' | 'published' | 'hidden' | 'rejected';
 }
 
 /** Історії з макета «Біля вогнища» + одна власна для демо-користувача + одна на перевірці. */
