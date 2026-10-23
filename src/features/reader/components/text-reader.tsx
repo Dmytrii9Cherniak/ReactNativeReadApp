@@ -1,52 +1,41 @@
 import { FlashList, type ViewToken } from '@shopify/flash-list';
 import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { useLibraryStore, type Book } from '@/features/library';
-import { charsToPages } from '@/features/stats';
+import type { BookContent } from '@/features/catalog';
+import { useReadingStyle } from '@/features/settings';
+import { MAX_CONTENT_WIDTH } from '@/shared/constants/layout';
 import { useDebouncedCallback } from '@/shared/hooks/use-debounced-callback';
-import { colors, spacing, typography } from '@/shared/theme';
-import { CenteredMessage, Loader, Text } from '@/shared/ui';
+import { colors, spacing } from '@/shared/theme';
+import { Text } from '@/shared/ui';
 
-import { useBookText } from '../hooks/use-book-text';
-import { useReadPagesTracker } from '../hooks/use-read-pages-tracker';
-import { lineEndOffsets, splitLines } from '../lib/text-lines';
+import { useReadingProgressStore } from '../reading-progress.store';
 
-/** Позиція зберігається, коли прокрутка «вляглася», а не на кожну зміну видимих рядків. */
+/** Позиція зберігається, коли прокрутка «вляглася», а не на кожен кадр. */
 const SAVE_PROGRESS_DELAY_MS = 500;
 
-export function TextReader({ book }: { book: Book }) {
-  const state = useBookText(book);
-
-  if (state.status === 'loading') {
-    return <Loader />;
-  }
-
-  if (state.status === 'error') {
-    return <CenteredMessage title="Не вдалося прочитати файл" description={state.message} />;
-  }
-
-  return <TextContent book={book} text={state.value} />;
+interface TextReaderProps {
+  content: BookContent;
+  onProgress: (fraction: number) => void;
 }
 
 /**
- * Текст рендериться віртуалізованим списком рядків: на екрані лише видимі,
- * тож великі файли не гальмують. Позиція — індекс першого видимого рядка.
+ * Текст — віртуалізований список абзаців: на екрані лише видимі, тож довгі книги не гальмують.
+ * Шрифт і розмір — з налаштувань, змінюються «на льоту».
  */
-function TextContent({ book, text }: { book: Book; text: string }) {
-  const saveProgress = useLibraryStore((s) => s.saveProgress);
-  const trackReadPages = useReadPagesTracker(book);
-  const [lines] = useState(() => splitLines(text));
-  const [lineEnds] = useState(() => lineEndOffsets(lines));
-  const [initialLine] = useState(() => getSavedLine(book, lines.length));
+export function TextReader({ content, onProgress }: TextReaderProps) {
+  const { bookId, paragraphs } = content;
+  const save = useReadingProgressStore((s) => s.save);
+  const readingStyle = useReadingStyle();
+  // Початкова позиція читається один раз: далі список керує прокруткою сам
+  const [initialParagraph] = useState(() => {
+    const saved = useReadingProgressStore.getState().positions[bookId]?.paragraph;
 
-  /** Позиція — перший видимий рядок; прочитане — усе до останнього видимого. */
-  const savePosition = useDebouncedCallback((firstVisible: number, lastVisible: number) => {
-    void saveProgress(book.id, {
-      location: { type: 'line', line: firstVisible },
-      fraction: (lastVisible + 1) / lines.length,
-      furthestPages: trackReadPages(charsToPages(lineEnds[lastVisible])),
-    });
+    return saved === undefined ? undefined : Math.min(saved, paragraphs.length - 1);
+  });
+
+  const savePosition = useDebouncedCallback((first: number, fraction: number) => {
+    save(bookId, { paragraph: first, fraction });
   }, SAVE_PROGRESS_DELAY_MS);
 
   const handleViewableItemsChanged = ({
@@ -60,44 +49,37 @@ function TextContent({ book, text }: { book: Book; text: string }) {
       return;
     }
 
-    savePosition(Math.min(...indexes), Math.max(...indexes));
+    const fraction = (Math.max(...indexes) + 1) / paragraphs.length;
+
+    onProgress(fraction);
+    savePosition(Math.min(...indexes), fraction);
   };
 
   return (
     <FlashList
-      data={lines}
+      data={paragraphs}
       keyExtractor={(_, index) => String(index)}
-      renderItem={({ item }) => <Line text={item} />}
-      initialScrollIndex={initialLine}
+      extraData={readingStyle}
+      renderItem={({ item }) => (
+        <Text variant="reading" style={[readingStyle, styles.paragraph]}>
+          {item}
+        </Text>
+      )}
+      initialScrollIndex={initialParagraph}
       onViewableItemsChanged={handleViewableItemsChanged}
-      style={styles.container}
+      style={styles.list}
       contentContainerStyle={styles.content}
     />
   );
 }
 
-/** Порожній рядок файлу — відступ висотою в рядок, як у самому файлі. */
-function Line({ text }: { text: string }) {
-  if (text.length === 0) {
-    return <View style={styles.blankLine} />;
-  }
-
-  return <Text variant="reading">{text}</Text>;
-}
-
-/** Збережений рядок, якщо прогрес книги записаний у рядках. */
-function getSavedLine(book: Book, lineCount: number): number | undefined {
-  const location = book.progress?.location;
-
-  if (location?.type !== 'line') {
-    return undefined;
-  }
-
-  return Math.min(location.line, lineCount - 1);
-}
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.xl },
-  blankLine: { height: typography.reading.lineHeight },
+  list: { flex: 1, backgroundColor: colors.background },
+  content: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg },
+  paragraph: {
+    width: '100%',
+    maxWidth: MAX_CONTENT_WIDTH,
+    alignSelf: 'center',
+    marginBottom: spacing.md,
+  },
 });

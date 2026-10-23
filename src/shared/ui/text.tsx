@@ -3,13 +3,16 @@ import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
 import { colors, typography, type ColorToken, type TypographyVariant } from '@/shared/theme';
 
 const defaultColor: Record<TypographyVariant, ColorToken> = {
-  title: 'foreground',
-  heading: 'primary',
-  body: 'foreground',
-  reading: 'foreground',
-  label: 'foreground',
-  caption: 'muted',
-  mono: 'muted',
+  appTitle: 'primaryLight',
+  screenTitle: 'text',
+  display: 'text',
+  sectionLabel: 'textMuted',
+  bookTitle: 'text',
+  body: 'textSecondary',
+  label: 'text',
+  caption: 'textMuted',
+  reading: 'text',
+  mono: 'textMuted',
 };
 
 export interface TextProps extends RNTextProps {

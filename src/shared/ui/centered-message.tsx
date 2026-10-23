@@ -16,7 +16,7 @@ interface CenteredMessageProps {
 export function CenteredMessage({ title, description, children }: CenteredMessageProps) {
   return (
     <View style={styles.container}>
-      <Text variant="heading">{title}</Text>
+      <Text variant="label">{title}</Text>
       {description ? (
         <Text variant="caption" style={styles.description}>
           {description}

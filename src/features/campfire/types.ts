@@ -1,0 +1,30 @@
+import type { FactionId } from '@/features/progression';
+
+/** Автор історії — публічні дані для підпису «Нік · Ранг · Угруповання». */
+export interface StoryAuthor {
+  id: string;
+  nickname: string;
+  xp: number;
+  factionId: FactionId;
+  hasNonStop: boolean;
+}
+
+/** Статус: історії звичайних користувачів спершу проходять перевірку. */
+export type StoryStatus = 'pending' | 'published';
+
+export interface Story {
+  id: string;
+  title: string;
+  body: string;
+  author: StoryAuthor;
+  createdAt: string;
+  status: StoryStatus;
+  fires: number;
+  /** Чи запалив вогник поточний користувач */
+  firedByMe: boolean;
+}
+
+export interface NewStory {
+  title: string;
+  body: string;
+}

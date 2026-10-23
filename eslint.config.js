@@ -3,7 +3,6 @@ const stylistic = require('@stylistic/eslint-plugin');
 const { defineConfig } = require('eslint/config');
 const expoConfig = require('eslint-config-expo/flat');
 const prettierRecommended = require('eslint-plugin-prettier/recommended');
-const globals = require('globals');
 
 /** Фічі спілкуються тільки через публічний API: `@/features/<name>`. */
 const noDeepFeatureImports = {
@@ -76,12 +75,6 @@ module.exports = defineConfig([
         },
       ],
     },
-  },
-
-  {
-    // Node-скрипти (postinstall): тут CommonJS і глобальні змінні Node
-    files: ['scripts/**/*.js'],
-    languageOptions: { globals: globals.node },
   },
 
   {

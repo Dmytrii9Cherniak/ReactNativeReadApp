@@ -1,5 +1,4 @@
-import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
-import { useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { MAX_CONTENT_WIDTH } from '@/shared/constants/layout';
 import { colors, spacing } from '@/shared/theme';
@@ -8,38 +7,46 @@ import type { ReactNode } from 'react';
 
 interface ScreenProps {
   children: ReactNode;
-  /** За замовчуванням — лише верх (низ займає таб-бар / хедер Stack). */
-  edges?: Edge[];
-  style?: StyleProp<ViewStyle>;
+  /** Колір тла (екрани «Біля вогнища» — темно-теплі) */
+  backgroundColor?: string;
+  /** Проміжок між блоками */
+  gap?: number;
+  footer?: ReactNode;
+  contentStyle?: StyleProp<ViewStyle>;
 }
 
-export function Screen({ children, edges = ['top'], style }: ScreenProps) {
-  const insets = useSafeAreaInsets();
-
+/**
+ * Типовий екран із прокруткою: відступи й колонка контенту обмеженої ширини,
+ * щоб на планшеті форми й тексти не розтягувались на весь екран.
+ */
+export function Screen({
+  children,
+  backgroundColor = colors.background,
+  gap = spacing.lg,
+  footer,
+  contentStyle,
+}: ScreenProps) {
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingTop: edges.includes('top') ? insets.top : 0,
-          paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
-        },
-      ]}>
-      <View style={[styles.content, style]}>{children}</View>
+    <View style={[styles.container, { backgroundColor }]}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled">
+        <View style={[styles.column, { gap }, contentStyle]}>{children}</View>
+      </ScrollView>
+      {footer ? <View style={styles.footer}>{footer}</View> : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing.lg,
-  },
-  content: {
-    flex: 1,
+  container: { flex: 1 },
+  content: { padding: spacing.xl },
+  column: { width: '100%', maxWidth: MAX_CONTENT_WIDTH, alignSelf: 'center' },
+  footer: {
     width: '100%',
     maxWidth: MAX_CONTENT_WIDTH,
     alignSelf: 'center',
+    padding: spacing.lg,
   },
 });

@@ -6,10 +6,10 @@ export const navigationTheme: Theme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    primary: colors.primary,
+    primary: colors.primaryLight,
     background: colors.background,
-    card: colors.surface,
-    text: colors.foreground,
+    card: colors.background,
+    text: colors.text,
     border: colors.border,
     notification: colors.danger,
   },
