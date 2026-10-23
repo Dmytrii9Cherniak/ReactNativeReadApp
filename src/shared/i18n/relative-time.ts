@@ -7,7 +7,14 @@ const WEEK = 7 * DAY;
 
 /** «3 дні тому», «тиждень тому» — для стрічки й карток. */
 export function formatRelativeTime(t: Messages, iso: string, now = Date.now()): string {
-  const diff = Math.max(0, now - new Date(iso).getTime());
+  const time = new Date(iso).getTime();
+
+  // Некоректна дата з сервера — краще нічого, ніж «NaN днів тому»
+  if (Number.isNaN(time)) {
+    return '';
+  }
+
+  const diff = Math.max(0, now - time);
 
   if (diff < MINUTE) {
     return t.time.justNow;

@@ -14,6 +14,9 @@ import { HeaderTitle } from '@/shared/ui';
  * - планшет: те саме меню завжди видно збоку, кнопки ☰ немає.
  * Розділи без дозволу закриті (Drawer.Protected) — недоступні навіть за прямим посиланням.
  */
+/** Помилка в будь-якому розділі меню — запасний екран з «Спробувати ще раз» і «На головну». */
+export { ErrorFallback as ErrorBoundary } from '@/shared/ui';
+
 export default function MainLayout() {
   const t = useT();
   const { isTablet } = useLayout();

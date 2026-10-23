@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { formatRelativeTime, useT } from '@/shared/i18n';
+import { releaseFocus } from '@/shared/lib/focus';
 import { borderWidth, campfireColors, radius, spacing } from '@/shared/theme';
 import { Text } from '@/shared/ui';
 
@@ -21,7 +22,10 @@ export function StoryCard({ story, onOpen }: StoryCardProps) {
   return (
     <Pressable
       accessibilityRole="button"
-      onPress={onOpen}
+      onPress={() => {
+        releaseFocus();
+        onOpen();
+      }}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <AuthorLine author={story.author} meta={formatRelativeTime(t, story.createdAt)} />
       <Text variant="label" style={styles.title}>

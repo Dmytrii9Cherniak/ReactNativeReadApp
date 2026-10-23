@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -6,6 +5,7 @@ import type { BookLanguage } from '@/features/catalog';
 import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
 import { showMessage } from '@/shared/lib/dialogs';
+import { goBack } from '@/shared/lib/navigation';
 import { spacing } from '@/shared/theme';
 import { Button, Checkbox, Chip, Screen, Text, TextField } from '@/shared/ui';
 
@@ -30,7 +30,7 @@ export function UploadScreen() {
   const { submit, isSubmitting, error, setError } = useSubmit(async (bookFile: BookFile) => {
     await uploadApi.submitBook({ title, author, description, language, file: bookFile, cover });
     showMessage(t.upload.submitted);
-    router.back();
+    goBack();
   });
 
   const handleSubmit = () => {
@@ -54,10 +54,15 @@ export function UploadScreen() {
   };
 
   const choose = async (types: string[], onPicked: (picked: BookFile) => void) => {
-    const picked = await pickFile(types);
+    try {
+      const picked = await pickFile(types);
 
-    if (picked) {
-      onPicked(picked);
+      if (picked) {
+        onPicked(picked);
+      }
+    } catch {
+      // Системний вибір файлу недоступний / відмовив
+      showMessage(t.common.error, t.errors.unknown);
     }
   };
 

@@ -66,19 +66,20 @@ export const useAuthStore = create<AuthState>()(
 
           apiSession.setToken(token);
 
-          if (token) {
-            try {
+          try {
+            if (token) {
               // Роль могла змінитися, поки застосунок був закритий
               set({ user: await authApi.me() });
-            } catch (error) {
-              // Токен більше не дійсний — виходимо; без мережі лишаємо збережені дані
-              if (isApiError(error, 'unauthorized')) {
-                endSession();
-              }
             }
+          } catch (error) {
+            // Токен більше не дійсний — виходимо; без мережі лишаємо збережені дані
+            if (isApiError(error, 'unauthorized')) {
+              endSession();
+            }
+          } finally {
+            // Застосунок показуємо за будь-якого результату — інакше вічна заставка
+            set({ isReady: true });
           }
-
-          set({ isReady: true });
         },
       };
     },

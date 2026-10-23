@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useCurrentUser } from '@/features/auth';
 import { FactionAvatar, NonStopBadge, RankLabel, useProgress } from '@/features/progression';
 import { useT } from '@/shared/i18n';
+import { releaseFocus } from '@/shared/lib/focus';
 import { borderWidth, colors, radius, spacing } from '@/shared/theme';
 import { Button, Icon, Text } from '@/shared/ui';
 
@@ -40,6 +41,7 @@ export function MenuUser({ onNavigate }: { onNavigate: () => void }) {
     <Pressable
       accessibilityRole="button"
       onPress={() => {
+        releaseFocus();
         onNavigate();
         router.navigate('/profile');
       }}

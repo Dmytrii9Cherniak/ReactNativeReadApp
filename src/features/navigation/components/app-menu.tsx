@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { can, useAuthStore } from '@/features/auth';
 import { useT } from '@/shared/i18n';
 import { confirm, showMessage } from '@/shared/lib/dialogs';
+import { releaseFocus } from '@/shared/lib/focus';
 import { borderWidth, colors, radius, spacing, type ColorToken } from '@/shared/theme';
 import { Icon, Text, type IconName } from '@/shared/ui';
 
@@ -99,7 +100,10 @@ function MenuRow({ icon, label, onPress, isActive = false, color }: MenuRowProps
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected: isActive }}
-      onPress={onPress}
+      onPress={() => {
+        releaseFocus();
+        onPress();
+      }}
       style={({ pressed }) => [
         styles.item,
         isActive && styles.activeItem,

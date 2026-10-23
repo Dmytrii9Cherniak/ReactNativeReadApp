@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 
 import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
+import { goBack } from '@/shared/lib/navigation';
 import { spacing } from '@/shared/theme';
 import { Button, Checkbox, Screen, Text, TextField } from '@/shared/ui';
 
@@ -76,7 +77,7 @@ export function SignupScreen() {
       />
       <FormError message={error} />
       <Button title={t.auth.createAccount} onPress={handleSignup} loading={isSubmitting} />
-      <AuthLink question={t.auth.haveAccount} action={t.auth.login} onPress={() => router.back()} />
+      <AuthLink question={t.auth.haveAccount} action={t.auth.login} onPress={goBack} />
     </Screen>
   );
 }

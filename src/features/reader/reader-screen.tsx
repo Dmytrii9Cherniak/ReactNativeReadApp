@@ -21,7 +21,7 @@ export function ReaderScreen({ bookId }: { bookId: string }) {
   const [fraction, setFraction] = useState<number | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
-  const percent = Math.round((fraction ?? saved?.fraction ?? 0) * 100);
+  const percent = Math.round(Math.min(1, Math.max(0, fraction ?? saved?.fraction ?? 0)) * 100);
 
   return (
     <>
@@ -43,6 +43,8 @@ export function ReaderScreen({ bookId }: { bookId: string }) {
       {content.status === 'loading' ? (
         <Loader />
       ) : content.status === 'error' ? (
+        <CenteredMessage title={t.reader.openError} />
+      ) : content.value.paragraphs.length === 0 ? (
         <CenteredMessage title={t.reader.openError} />
       ) : (
         <TextReader content={content.value} onProgress={setFraction} />

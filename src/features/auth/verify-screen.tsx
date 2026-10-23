@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 
 import { env } from '@/config/env';
@@ -6,7 +7,7 @@ import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
 import { showMessage } from '@/shared/lib/dialogs';
 import { spacing } from '@/shared/theme';
-import { Button, Screen, Text, TextField } from '@/shared/ui';
+import { Button, CenteredMessage, Screen, Text, TextField } from '@/shared/ui';
 
 import { authApi } from './auth.api';
 import { useAuthStore } from './auth.store';
@@ -23,6 +24,15 @@ export function VerifyScreen({ email }: { email: string }) {
     await authApi.resendCode(email);
     showMessage(t.auth.resent);
   });
+
+  // Екран відкрито без пошти (пряме посилання, оновлення сторінки) — підтверджувати нічого
+  if (!email) {
+    return (
+      <CenteredMessage title={t.auth.verifyTitle} description={t.errors.validation}>
+        <Button title={t.auth.signup} onPress={() => router.replace('/signup')} />
+      </CenteredMessage>
+    );
+  }
 
   const handleConfirm = () => {
     const invalid = validateCode(t, code);

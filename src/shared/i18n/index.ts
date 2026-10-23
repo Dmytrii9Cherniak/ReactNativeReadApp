@@ -30,7 +30,10 @@ export const useLanguageStore = create<LanguageState>()(
 
 /** Тексти інтерфейсу поточною мовою: `const t = useT(); t.menu.myBooks`. */
 export function useT(): Messages {
-  return messages[useLanguageStore((s) => s.language)];
+  const language = useLanguageStore((s) => s.language);
+
+  // Збережене значення могло бути пошкоджене — тоді українська
+  return messages[language] ?? uk;
 }
 
 export { errorText } from './error-text';

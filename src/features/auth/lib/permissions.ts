@@ -31,5 +31,6 @@ export const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
 export const ROLES: readonly Role[] = ['user', 'moderator', 'admin'];
 
 export function can(user: User | null, permission: Permission): boolean {
-  return user !== null && ROLE_PERMISSIONS[user.role].includes(permission);
+  // Невідома роль (старі збережені дані) — жодних дозволів
+  return user !== null && (ROLE_PERMISSIONS[user.role] ?? []).includes(permission);
 }

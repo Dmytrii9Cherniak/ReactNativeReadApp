@@ -7,6 +7,10 @@ export const en: Messages = {
     name: 'Stalker Books',
   },
   common: {
+    retry: 'Try again',
+    crashTitle: 'Something went wrong',
+    crashHint: 'This screen could not be shown. Try again or go back to the home screen.',
+    home: 'Home',
     loadError: 'Failed to load',
     error: 'Error',
     cancel: 'Cancel',

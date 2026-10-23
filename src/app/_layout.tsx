@@ -11,11 +11,15 @@ import { useProgressionStore } from '@/features/progression';
 import { READING_FONT_ASSETS, useRestoreBrightness } from '@/features/settings';
 import { useShelvesStore } from '@/features/shelves';
 import { useT } from '@/shared/i18n';
+import { runInBackground } from '@/shared/lib/background';
 import { campfireColors, colors, navigationTheme } from '@/shared/theme';
 import { HeaderTitle } from '@/shared/ui';
 
 // Заставка тримається, поки не завантажені шрифти й не перевірена збережена сесія
-void SplashScreen.preventAutoHideAsync();
+runInBackground(() => SplashScreen.preventAutoHideAsync());
+
+/** Будь-яка помилка рендеру нижче — запасний екран замість падіння застосунку. */
+export { ErrorFallback as ErrorBoundary } from '@/shared/ui';
 
 export default function RootLayout() {
   const t = useT();
@@ -29,7 +33,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (isReady) {
-      void SplashScreen.hideAsync();
+      runInBackground(() => SplashScreen.hideAsync());
     }
   }, [isReady]);
 

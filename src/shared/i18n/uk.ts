@@ -6,6 +6,10 @@ export const uk = {
     name: 'Stalker Books',
   },
   common: {
+    retry: 'Спробувати ще раз',
+    crashTitle: 'Щось пішло не так',
+    crashHint: 'Екран не вдалося показати. Спробуйте ще раз або поверніться на головну.',
+    home: 'На головну',
     loadError: 'Не вдалося завантажити',
     error: 'Помилка',
     cancel: 'Скасувати',

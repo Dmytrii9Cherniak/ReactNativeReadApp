@@ -89,21 +89,33 @@ const DB_VERSION = 1;
 const STORAGE_KEY = 'mock-backend-db';
 
 let db: Db | null = null;
+/** Одне завантаження на всі запити: перші запити після запуску йдуть одночасно */
+let loading: Promise<Db> | null = null;
 
 /** База зберігається між запусками, тож зареєстровані акаунти й історії не зникають. */
-export async function getDb(): Promise<Db> {
+export function getDb(): Promise<Db> {
   if (db) {
-    return db;
+    return Promise.resolve(db);
   }
 
-  db = (await load()) ?? createSeed(DB_VERSION);
+  loading ??= load().then((saved) => {
+    db = saved ?? createSeed(DB_VERSION);
 
-  return db;
+    return db;
+  });
+
+  return loading;
 }
 
 export async function commit(): Promise<void> {
-  if (db) {
+  if (!db) {
+    return;
+  }
+
+  try {
     await kvStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  } catch {
+    // Не збереглося між запусками — у пам'яті дані актуальні, запит успішний
   }
 }
 

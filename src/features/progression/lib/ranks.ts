@@ -36,9 +36,12 @@ export function getRankIndex(xp: number): number {
 }
 
 export function getRankName(index: number, factionId: FactionId): string {
-  return index >= ENDGAME_FROM_INDEX
-    ? ENDGAME_RANK_NAMES[index - ENDGAME_FROM_INDEX]
-    : FACTION_RANK_NAMES[factionId][index];
+  if (index >= ENDGAME_FROM_INDEX) {
+    return ENDGAME_RANK_NAMES[index - ENDGAME_FROM_INDEX] ?? '';
+  }
+
+  // Невідоме угруповання (дані старішої версії) — назви Одинаків
+  return (FACTION_RANK_NAMES[factionId] ?? FACTION_RANK_NAMES.loners)[index] ?? '';
 }
 
 export function getRankByIndex(index: number, factionId: FactionId): Rank {
@@ -62,7 +65,9 @@ export function getRankProgress(xp: number, rank: Rank): number {
     return 1;
   }
 
-  return (xp - rank.threshold) / (rank.nextThreshold - rank.threshold);
+  const progress = (xp - rank.threshold) / (rank.nextThreshold - rank.threshold);
+
+  return Math.min(1, Math.max(0, progress));
 }
 
 /** Вогник дає 0.5 XP — округлюємо до десятих, щоб не було 150.49999 */

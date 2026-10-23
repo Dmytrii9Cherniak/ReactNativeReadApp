@@ -1,7 +1,18 @@
 import * as Brightness from 'expo-brightness';
 import { useEffect, useState } from 'react';
 
+import { runInBackground } from '@/shared/lib/background';
+
 import { useSettingsStore } from '../settings.store';
+
+/** Чи можна змінювати яскравість: на web модуля немає, а на деяких пристроях він кидає помилку. */
+async function isBrightnessAvailable(): Promise<boolean> {
+  try {
+    return await Brightness.isAvailableAsync();
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Яскравість екрана застосунку (iOS / Android). На web недоступна — `isAvailable: false`.
@@ -16,18 +27,23 @@ export function useBrightness() {
   useEffect(() => {
     let active = true;
 
-    void (async () => {
-      const available = await Brightness.isAvailableAsync();
-      const current = available ? await Brightness.getBrightnessAsync() : null;
+    runInBackground(async () => {
+      const available = await isBrightnessAvailable();
 
-      if (active) {
-        setIsAvailable(available);
+      if (!active) {
+        return;
+      }
 
-        if (current !== null) {
+      setIsAvailable(available);
+
+      if (available) {
+        const current = await Brightness.getBrightnessAsync();
+
+        if (active) {
           setSystem(current);
         }
       }
-    })();
+    });
 
     return () => {
       active = false;
@@ -36,7 +52,7 @@ export function useBrightness() {
 
   const setBrightness = (value: number) => {
     save(value);
-    void Brightness.setBrightnessAsync(value);
+    runInBackground(() => Brightness.setBrightnessAsync(value));
   };
 
   return { isAvailable, brightness: saved ?? system, setBrightness };
@@ -45,21 +61,22 @@ export function useBrightness() {
 /** Кореневий layout: повернути збережену яскравість після запуску. */
 export function useRestoreBrightness() {
   useEffect(() => {
-    const apply = async () => {
-      const { brightness } = useSettingsStore.getState();
+    const apply = () =>
+      runInBackground(async () => {
+        const { brightness } = useSettingsStore.getState();
 
-      if (brightness !== null && (await Brightness.isAvailableAsync())) {
-        await Brightness.setBrightnessAsync(brightness);
-      }
-    };
+        if (brightness !== null && (await isBrightnessAvailable())) {
+          await Brightness.setBrightnessAsync(brightness);
+        }
+      });
 
     // Налаштування читаються зі сховища асинхронно — чекаємо, поки завантажаться
     if (useSettingsStore.persist.hasHydrated()) {
-      void apply();
+      apply();
 
       return undefined;
     }
 
-    return useSettingsStore.persist.onFinishHydration(() => void apply());
+    return useSettingsStore.persist.onFinishHydration(apply);
   }, []);
 }

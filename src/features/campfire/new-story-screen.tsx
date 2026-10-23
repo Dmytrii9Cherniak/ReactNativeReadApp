@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 
@@ -6,6 +5,7 @@ import { useProgressionStore } from '@/features/progression';
 import { useSubmit } from '@/shared/hooks/use-submit';
 import { useT } from '@/shared/i18n';
 import { showMessage } from '@/shared/lib/dialogs';
+import { goBack } from '@/shared/lib/navigation';
 import { campfireColors, spacing } from '@/shared/theme';
 import { Button, Screen, Text, TextField } from '@/shared/ui';
 
@@ -25,7 +25,7 @@ export function NewStoryScreen() {
 
     await loadProgress();
     showMessage(story.status === 'published' ? t.campfire.published : t.campfire.sentForReview);
-    router.back();
+    goBack();
   });
 
   const handlePublish = () => {

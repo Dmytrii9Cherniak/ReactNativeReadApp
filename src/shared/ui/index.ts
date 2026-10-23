@@ -3,6 +3,7 @@ export { Card } from './card';
 export { CenteredMessage } from './centered-message';
 export { Checkbox } from './checkbox';
 export { Chip } from './chip';
+export { ErrorFallback } from './error-fallback';
 export { HeaderTitle } from './header-title';
 export { Icon, type IconName } from './icon';
 export { IconButton } from './icon-button';

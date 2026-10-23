@@ -31,7 +31,12 @@ export function TextReader({ content, onProgress }: TextReaderProps) {
   const [initialParagraph] = useState(() => {
     const saved = useReadingProgressStore.getState().positions[bookId]?.paragraph;
 
-    return saved === undefined ? undefined : Math.min(saved, paragraphs.length - 1);
+    // Книга могла змінитись (стала коротшою) — позиція має бути в межах тексту
+    if (saved === undefined || paragraphs.length === 0) {
+      return undefined;
+    }
+
+    return Math.min(Math.max(0, saved), paragraphs.length - 1);
   });
 
   const savePosition = useDebouncedCallback((first: number, fraction: number) => {

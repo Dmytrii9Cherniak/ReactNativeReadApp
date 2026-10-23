@@ -7,6 +7,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 
+import { releaseFocus } from '@/shared/lib/focus';
 import { borderWidth, colors, radius, spacing, type ColorToken } from '@/shared/theme';
 
 import { Icon, type IconName } from './icon';
@@ -44,6 +45,7 @@ export function Button({
   loading = false,
   disabled,
   style,
+  onPress,
   ...props
 }: ButtonProps) {
   const isDisabled = Boolean(disabled) || loading;
@@ -53,6 +55,10 @@ export function Button({
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
+      onPress={(event) => {
+        releaseFocus();
+        onPress?.(event);
+      }}
       style={({ pressed }) => [
         styles.base,
         styles[variant],
